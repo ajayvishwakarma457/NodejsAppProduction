@@ -1,0 +1,650 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Length 5886 >>
+stream
+BT
+/F2 22 Tf
+1 0 0 1 48 788 Tm
+(Enterprise Level Node.js Roadmap) Tj
+/F1 10 Tf
+1 0 0 1 48 756 Tm
+(A production-focused roadmap for building, operating, and governing Node.js) Tj
+/F1 10 Tf
+1 0 0 1 48 743 Tm
+(applications in an enterprise environment. This version includes the roadmap, required) Tj
+/F1 10 Tf
+1 0 0 1 48 730 Tm
+(controls, acceptance criteria, ownership fields, evidence expectations, and maturity) Tj
+/F1 10 Tf
+1 0 0 1 48 717 Tm
+(checkpoints.) Tj
+/F2 14 Tf
+1 0 0 1 48 694 Tm
+(Enterprise Coverage Summary) Tj
+/F1 10 Tf
+1 0 0 1 48 674 Tm
+(- Engineering standards: TypeScript, linting, formatting, repository standards, code review,) Tj
+/F1 10 Tf
+1 0 0 1 48 661 Tm
+(  documentation, and dependency management.) Tj
+/F1 10 Tf
+1 0 0 1 48 643 Tm
+(- Architecture governance: modular monolith, microservices, DDD, ADRs, API ownership, contract) Tj
+/F1 10 Tf
+1 0 0 1 48 630 Tm
+(  review, and service boundaries.) Tj
+/F1 10 Tf
+1 0 0 1 48 612 Tm
+(- Security and compliance: secure SDLC, OWASP, authentication, authorization, secrets, audit) Tj
+/F1 10 Tf
+1 0 0 1 48 599 Tm
+(  logs, vulnerability management, SBOM, and supply-chain controls.) Tj
+/F1 10 Tf
+1 0 0 1 48 581 Tm
+(- Operations: observability, reliability engineering, incident response, SLOs, runbooks,) Tj
+/F1 10 Tf
+1 0 0 1 48 568 Tm
+(  backup/restore, disaster recovery, and capacity planning.) Tj
+/F1 10 Tf
+1 0 0 1 48 550 Tm
+(- Delivery: CI/CD, Docker, Kubernetes, IaC, release strategies, rollback plans, environment) Tj
+/F1 10 Tf
+1 0 0 1 48 537 Tm
+(  strategy, and deployment verification.) Tj
+/F1 10 Tf
+1 0 0 1 48 519 Tm
+(- Quality: unit, integration, contract, API, E2E, performance, security, migration, and) Tj
+/F1 10 Tf
+1 0 0 1 48 506 Tm
+(  rollback testing.) Tj
+/F2 14 Tf
+1 0 0 1 48 488 Tm
+(Ownership, Status, And Evidence Tracker) Tj
+/F2 8 Tf
+1 0 0 1 51 468 Tm
+(Area) Tj
+/F2 8 Tf
+1 0 0 1 157 468 Tm
+(Owner) Tj
+/F2 8 Tf
+1 0 0 1 229 468 Tm
+(Status) Tj
+/F2 8 Tf
+1 0 0 1 291 468 Tm
+(Required Evidence) Tj
+/F1 8 Tf
+1 0 0 1 51 450 Tm
+(Engineering standards) Tj
+/F1 8 Tf
+1 0 0 1 157 450 Tm
+(Tech Lead) Tj
+/F1 8 Tf
+1 0 0 1 229 450 Tm
+(Required) Tj
+/F1 8 Tf
+1 0 0 1 291 450 Tm
+(Lint/type/test reports, PR checklist, repo template) Tj
+/F1 8 Tf
+1 0 0 1 51 432 Tm
+(Architecture) Tj
+/F1 8 Tf
+1 0 0 1 157 432 Tm
+(Architect/Lead) Tj
+/F1 8 Tf
+1 0 0 1 229 432 Tm
+(Required) Tj
+/F1 8 Tf
+1 0 0 1 291 432 Tm
+(ADR, service diagram, dependency map, API contracts) Tj
+/F1 8 Tf
+1 0 0 1 51 414 Tm
+(Security) Tj
+/F1 8 Tf
+1 0 0 1 157 414 Tm
+(Security + Lead) Tj
+/F1 8 Tf
+1 0 0 1 229 414 Tm
+(Required) Tj
+/F1 8 Tf
+1 0 0 1 291 414 Tm
+(Threat model, scan reports, auth review, audit log proof) Tj
+/F1 8 Tf
+1 0 0 1 51 396 Tm
+(Reliability) Tj
+/F1 8 Tf
+1 0 0 1 157 396 Tm
+(SRE/Lead) Tj
+/F1 8 Tf
+1 0 0 1 229 396 Tm
+(Required) Tj
+/F1 8 Tf
+1 0 0 1 291 396 Tm
+(SLOs, dashboards, alerts, runbooks, DR test results) Tj
+/F1 8 Tf
+1 0 0 1 51 378 Tm
+(Testing) Tj
+/F1 8 Tf
+1 0 0 1 157 378 Tm
+(QA/Lead) Tj
+/F1 8 Tf
+1 0 0 1 229 378 Tm
+(Required) Tj
+/F1 8 Tf
+1 0 0 1 291 378 Tm
+(Coverage report, contract tests, load tests, E2E reports) Tj
+/F1 8 Tf
+1 0 0 1 51 360 Tm
+(Delivery) Tj
+/F1 8 Tf
+1 0 0 1 157 360 Tm
+(DevOps/Platform) Tj
+/F1 8 Tf
+1 0 0 1 229 360 Tm
+(Required) Tj
+/F1 8 Tf
+1 0 0 1 291 360 Tm
+(Pipeline logs, artifact scan, deployment and rollback) Tj
+/F1 8 Tf
+1 0 0 1 291 350 Tm
+(evidence) Tj
+/F1 8 Tf
+1 0 0 1 51 332 Tm
+(Data) Tj
+/F1 8 Tf
+1 0 0 1 157 332 Tm
+(DBA/Lead) Tj
+/F1 8 Tf
+1 0 0 1 229 332 Tm
+(Required) Tj
+/F1 8 Tf
+1 0 0 1 291 332 Tm
+(Migration plan, backup proof, restore drill, data) Tj
+/F1 8 Tf
+1 0 0 1 291 322 Tm
+(retention policy) Tj
+/F1 8 Tf
+1 0 0 1 51 304 Tm
+(Governance) Tj
+/F1 8 Tf
+1 0 0 1 157 304 Tm
+(Engineering) Tj
+/F1 8 Tf
+1 0 0 1 157 294 Tm
+(Manager) Tj
+/F1 8 Tf
+1 0 0 1 229 304 Tm
+(Required) Tj
+/F1 8 Tf
+1 0 0 1 291 304 Tm
+(Service catalog, ownership matrix, debt register) Tj
+/F2 14 Tf
+1 0 0 1 48 264 Tm
+(Level-Based Enterprise Maturity) Tj
+/F2 8 Tf
+1 0 0 1 51 244 Tm
+(Level) Tj
+/F2 8 Tf
+1 0 0 1 133 244 Tm
+(Focus) Tj
+/F2 8 Tf
+1 0 0 1 313 244 Tm
+(Expected Outcome) Tj
+/F1 8 Tf
+1 0 0 1 51 226 Tm
+(L1 Foundation) Tj
+/F1 8 Tf
+1 0 0 1 133 226 Tm
+(Node.js, JavaScript, TypeScript basics,) Tj
+/F1 8 Tf
+1 0 0 1 133 216 Tm
+(REST, database basics) Tj
+/F1 8 Tf
+1 0 0 1 313 226 Tm
+(Can build a maintainable API with typed code,) Tj
+/F1 8 Tf
+1 0 0 1 313 216 Tm
+(validation, tests, and documentation.) Tj
+/F1 8 Tf
+1 0 0 1 51 198 Tm
+(L2 Production) Tj
+/F1 8 Tf
+1 0 0 1 51 188 Tm
+(Ready) Tj
+/F1 8 Tf
+1 0 0 1 133 198 Tm
+(Auth, authorization, OpenAPI, CI/CD,) Tj
+/F1 8 Tf
+1 0 0 1 133 188 Tm
+(Docker, logging, security scans) Tj
+/F1 8 Tf
+1 0 0 1 313 198 Tm
+(Can ship a service safely with release checks,) Tj
+/F1 8 Tf
+1 0 0 1 313 188 Tm
+(rollback plan, and basic observability.) Tj
+/F1 8 Tf
+1 0 0 1 51 170 Tm
+(L3 Scalable) Tj
+/F1 8 Tf
+1 0 0 1 133 170 Tm
+(Redis, queues, load testing, tracing,) Tj
+/F1 8 Tf
+1 0 0 1 133 160 Tm
+(autoscaling, performance profiling) Tj
+/F1 8 Tf
+1 0 0 1 313 170 Tm
+(Can operate services under real traffic with) Tj
+/F1 8 Tf
+1 0 0 1 313 160 Tm
+(measured capacity and known bottlenecks.) Tj
+/F1 8 Tf
+1 0 0 1 51 142 Tm
+(L4 Enterprise) Tj
+/F1 8 Tf
+1 0 0 1 51 132 Tm
+(Governed) Tj
+/F1 8 Tf
+1 0 0 1 133 142 Tm
+(ADRs, threat modeling, contract tests,) Tj
+/F1 8 Tf
+1 0 0 1 133 132 Tm
+(audit logs, SLOs, DR, service catalog) Tj
+/F1 8 Tf
+1 0 0 1 313 142 Tm
+(Can pass enterprise architecture, security,) Tj
+/F1 8 Tf
+1 0 0 1 313 132 Tm
+(reliability, and governance reviews.) Tj
+/F1 8 Tf
+1 0 0 1 51 114 Tm
+(L5 Platform) Tj
+/F1 8 Tf
+1 0 0 1 51 104 Tm
+(Mature) Tj
+/F1 8 Tf
+1 0 0 1 133 114 Tm
+(Golden paths, policy as code, reusable) Tj
+/F1 8 Tf
+1 0 0 1 133 104 Tm
+(templates, automated controls, cost) Tj
+/F1 8 Tf
+1 0 0 1 133 94 Tm
+(governance) Tj
+/F1 8 Tf
+1 0 0 1 313 114 Tm
+(Can scale engineering practices across teams with) Tj
+/F1 8 Tf
+1 0 0 1 313 104 Tm
+(repeatable standards.) Tj
+/F1 8 Tf
+1 0 0 1 503 28 Tm
+(Page 1 of 3) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 4475 >>
+stream
+BT
+/F2 14 Tf
+1 0 0 1 48 788 Tm
+(Required Tools And Practices) Tj
+/F2 8 Tf
+1 0 0 1 51 768 Tm
+(Category) Tj
+/F2 8 Tf
+1 0 0 1 169 768 Tm
+(Recommended Tools / Practices) Tj
+/F1 8 Tf
+1 0 0 1 51 750 Tm
+(Language) Tj
+/F1 8 Tf
+1 0 0 1 169 750 Tm
+(TypeScript strict mode, tsconfig standards, typed environment variables) Tj
+/F1 8 Tf
+1 0 0 1 51 732 Tm
+(API) Tj
+/F1 8 Tf
+1 0 0 1 169 732 Tm
+(OpenAPI/Swagger, protobuf for gRPC, Postman or Bruno collections) Tj
+/F1 8 Tf
+1 0 0 1 51 714 Tm
+(Framework) Tj
+/F1 8 Tf
+1 0 0 1 169 714 Tm
+(NestJS, Fastify, Express, or Hono based on project need and team maturity) Tj
+/F1 8 Tf
+1 0 0 1 51 696 Tm
+(Validation) Tj
+/F1 8 Tf
+1 0 0 1 169 696 Tm
+(Zod, Joi, class-validator, or framework-native validation) Tj
+/F1 8 Tf
+1 0 0 1 51 678 Tm
+(Database) Tj
+/F1 8 Tf
+1 0 0 1 169 678 Tm
+(PostgreSQL with Prisma/Drizzle/TypeORM; MongoDB where document model fits) Tj
+/F1 8 Tf
+1 0 0 1 51 660 Tm
+(Cache/Queue) Tj
+/F1 8 Tf
+1 0 0 1 169 660 Tm
+(Redis, BullMQ, RabbitMQ, Kafka, NATS, or managed cloud queues) Tj
+/F1 8 Tf
+1 0 0 1 51 642 Tm
+(Testing) Tj
+/F1 8 Tf
+1 0 0 1 169 642 Tm
+(Jest/Vitest, Supertest, Playwright, Pact, k6, Artillery) Tj
+/F1 8 Tf
+1 0 0 1 51 624 Tm
+(Security) Tj
+/F1 8 Tf
+1 0 0 1 169 624 Tm
+(npm audit, Snyk, Dependabot/Renovate, SAST, DAST, secret scanning, SBOM) Tj
+/F1 8 Tf
+1 0 0 1 51 606 Tm
+(Observability) Tj
+/F1 8 Tf
+1 0 0 1 169 606 Tm
+(OpenTelemetry, Prometheus, Grafana, Loki/ELK, managed APM) Tj
+/F1 8 Tf
+1 0 0 1 51 588 Tm
+(Delivery) Tj
+/F1 8 Tf
+1 0 0 1 169 588 Tm
+(GitHub Actions/GitLab CI, Docker, Kubernetes, Terraform/Pulumi) Tj
+/F2 14 Tf
+1 0 0 1 48 558 Tm
+(Enterprise Acceptance Criteria) Tj
+/F1 10 Tf
+1 0 0 1 48 538 Tm
+(- Every production service has an owner, README, setup guide, architecture note, API contract,) Tj
+/F1 10 Tf
+1 0 0 1 48 525 Tm
+(  runbook, dashboard, and escalation path.) Tj
+/F1 10 Tf
+1 0 0 1 48 507 Tm
+(- Every pull request passes linting, formatting, type checks, unit tests, integration tests,) Tj
+/F1 10 Tf
+1 0 0 1 48 494 Tm
+(  dependency scans, and required review approvals.) Tj
+/F1 10 Tf
+1 0 0 1 48 476 Tm
+(- Every external API has validation, authentication, authorization, standardized errors,) Tj
+/F1 10 Tf
+1 0 0 1 48 463 Tm
+(  OpenAPI documentation, versioning, and compatibility rules.) Tj
+/F1 10 Tf
+1 0 0 1 48 445 Tm
+(- Every critical workflow has idempotency, audit logging, traceability, rollback strategy,) Tj
+/F1 10 Tf
+1 0 0 1 48 432 Tm
+(  alert coverage, and recovery procedure.) Tj
+/F1 10 Tf
+1 0 0 1 48 414 Tm
+(- Every data change has migration review, rollback planning, backup consideration, and restore) Tj
+/F1 10 Tf
+1 0 0 1 48 401 Tm
+(  impact assessment.) Tj
+/F1 10 Tf
+1 0 0 1 48 383 Tm
+(- Every production dependency has timeout, retry, circuit-breaker or fallback behavior,) Tj
+/F1 10 Tf
+1 0 0 1 48 370 Tm
+(  dashboard visibility, and ownership.) Tj
+/F1 10 Tf
+1 0 0 1 48 352 Tm
+(- Every high-risk release includes deployment plan, smoke tests, monitoring window, rollback) Tj
+/F1 10 Tf
+1 0 0 1 48 339 Tm
+(  command, and owner approval.) Tj
+/F2 14 Tf
+1 0 0 1 48 321 Tm
+(Security Checklist) Tj
+/F2 8 Tf
+1 0 0 1 51 301 Tm
+(Control) Tj
+/F2 8 Tf
+1 0 0 1 176 301 Tm
+(Enterprise Expectation) Tj
+/F1 8 Tf
+1 0 0 1 51 283 Tm
+(Authentication) Tj
+/F1 8 Tf
+1 0 0 1 176 283 Tm
+(OIDC/OAuth2 where appropriate, short-lived tokens, secure session handling, MFA) Tj
+/F1 8 Tf
+1 0 0 1 176 273 Tm
+(support for admin access) Tj
+/F1 8 Tf
+1 0 0 1 51 255 Tm
+(Authorization) Tj
+/F1 8 Tf
+1 0 0 1 176 255 Tm
+(RBAC/ABAC, tenant isolation, policy checks close to business action, least) Tj
+/F1 8 Tf
+1 0 0 1 176 245 Tm
+(privilege) Tj
+/F1 8 Tf
+1 0 0 1 51 227 Tm
+(Secrets) Tj
+/F1 8 Tf
+1 0 0 1 176 227 Tm
+(Managed secret store, rotation policy, no secrets in code or CI logs) Tj
+/F1 8 Tf
+1 0 0 1 51 209 Tm
+(OWASP) Tj
+/F1 8 Tf
+1 0 0 1 176 209 Tm
+(Protection against injection, broken access control, XSS, CSRF, SSRF,) Tj
+/F1 8 Tf
+1 0 0 1 176 199 Tm
+(misconfiguration) Tj
+/F1 8 Tf
+1 0 0 1 51 181 Tm
+(Supply chain) Tj
+/F1 8 Tf
+1 0 0 1 176 181 Tm
+(Dependency scanning, SBOM, license checks, lock files, trusted base images) Tj
+/F1 8 Tf
+1 0 0 1 51 163 Tm
+(Audit) Tj
+/F1 8 Tf
+1 0 0 1 176 163 Tm
+(Actor, action, target, timestamp, source, correlation ID, and result for) Tj
+/F1 8 Tf
+1 0 0 1 176 153 Tm
+(sensitive actions) Tj
+/F1 8 Tf
+1 0 0 1 51 135 Tm
+(Compliance) Tj
+/F1 8 Tf
+1 0 0 1 176 135 Tm
+(Retention, deletion, encryption, access review, incident evidence, review cadence) Tj
+/F1 8 Tf
+1 0 0 1 503 28 Tm
+(Page 2 of 3) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 3171 >>
+stream
+BT
+/F2 14 Tf
+1 0 0 1 48 788 Tm
+(Reliability And Operations Checklist) Tj
+/F2 8 Tf
+1 0 0 1 51 768 Tm
+(Practice) Tj
+/F2 8 Tf
+1 0 0 1 176 768 Tm
+(Enterprise Expectation) Tj
+/F1 8 Tf
+1 0 0 1 51 750 Tm
+(SLOs) Tj
+/F1 8 Tf
+1 0 0 1 176 750 Tm
+(Latency, availability, error rate, saturation, and business-critical workflow) Tj
+/F1 8 Tf
+1 0 0 1 176 740 Tm
+(targets) Tj
+/F1 8 Tf
+1 0 0 1 51 722 Tm
+(Runbooks) Tj
+/F1 8 Tf
+1 0 0 1 176 722 Tm
+(Symptoms, dashboards, likely causes, commands, rollback, escalation, customer) Tj
+/F1 8 Tf
+1 0 0 1 176 712 Tm
+(impact notes) Tj
+/F1 8 Tf
+1 0 0 1 51 694 Tm
+(Alerts) Tj
+/F1 8 Tf
+1 0 0 1 176 694 Tm
+(SLO burn-rate and customer-impact alerts instead of noisy infrastructure-only) Tj
+/F1 8 Tf
+1 0 0 1 176 684 Tm
+(alerts) Tj
+/F1 8 Tf
+1 0 0 1 51 666 Tm
+(DR) Tj
+/F1 8 Tf
+1 0 0 1 176 666 Tm
+(Backup, restore drill, RTO, RPO, region/dependency failure exercise, data-loss) Tj
+/F1 8 Tf
+1 0 0 1 176 656 Tm
+(scenario) Tj
+/F1 8 Tf
+1 0 0 1 51 638 Tm
+(Resilience) Tj
+/F1 8 Tf
+1 0 0 1 176 638 Tm
+(Timeouts, retries with backoff, circuit breakers, graceful shutdown, backpressure) Tj
+/F1 8 Tf
+1 0 0 1 51 620 Tm
+(Capacity) Tj
+/F1 8 Tf
+1 0 0 1 176 620 Tm
+(Load tests, profiling, connection pools, autoscaling policy, cost review) Tj
+/F2 14 Tf
+1 0 0 1 48 590 Tm
+(Project And Interview Checkpoints) Tj
+/F2 8 Tf
+1 0 0 1 51 570 Tm
+(Checkpoint) Tj
+/F2 8 Tf
+1 0 0 1 179 570 Tm
+(What Must Be Demonstrated) Tj
+/F1 8 Tf
+1 0 0 1 51 552 Tm
+(Beginner project) Tj
+/F1 8 Tf
+1 0 0 1 179 552 Tm
+(CRUD API with validation, database persistence, tests, error handling, and API) Tj
+/F1 8 Tf
+1 0 0 1 179 542 Tm
+(collection) Tj
+/F1 8 Tf
+1 0 0 1 51 524 Tm
+(Intermediate project) Tj
+/F1 8 Tf
+1 0 0 1 179 524 Tm
+(Auth, RBAC, PostgreSQL/Prisma, Redis cache, queues, OpenAPI, structured logs, CI) Tj
+/F1 8 Tf
+1 0 0 1 51 506 Tm
+(Senior project) Tj
+/F1 8 Tf
+1 0 0 1 179 506 Tm
+(Modular architecture, contract tests, tracing, dashboards, load testing, Docker,) Tj
+/F1 8 Tf
+1 0 0 1 179 496 Tm
+(deployment) Tj
+/F1 8 Tf
+1 0 0 1 51 478 Tm
+(Architect project) Tj
+/F1 8 Tf
+1 0 0 1 179 478 Tm
+(Service boundaries, ADRs, event-driven design, SLOs, DR plan, threat model, cost) Tj
+/F1 8 Tf
+1 0 0 1 179 468 Tm
+(plan) Tj
+/F1 8 Tf
+1 0 0 1 51 450 Tm
+(Enterprise review) Tj
+/F1 8 Tf
+1 0 0 1 179 450 Tm
+(Evidence pack: architecture, security, tests, operations, ownership, compliance,) Tj
+/F1 8 Tf
+1 0 0 1 179 440 Tm
+(and release readiness) Tj
+/F2 14 Tf
+1 0 0 1 48 410 Tm
+(Final Enterprise Readiness Decision) Tj
+/F1 10 Tf
+1 0 0 1 48 390 Tm
+(- Enterprise ready means the roadmap is measurable, reviewable, and operationally complete. It) Tj
+/F1 10 Tf
+1 0 0 1 48 377 Tm
+(  should not only list technologies.) Tj
+/F1 10 Tf
+1 0 0 1 48 359 Tm
+(- A developer completing this roadmap should be able to design, build, secure, deploy,) Tj
+/F1 10 Tf
+1 0 0 1 48 346 Tm
+(  monitor, operate, and improve a production Node.js service.) Tj
+/F1 10 Tf
+1 0 0 1 48 328 Tm
+(- A team using this roadmap should be able to prove readiness through evidence: tests, scans,) Tj
+/F1 10 Tf
+1 0 0 1 48 315 Tm
+(  ADRs, dashboards, runbooks, deployment records, and incident procedures.) Tj
+/F1 8 Tf
+1 0 0 1 503 28 Tm
+(Page 3 of 3) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000134 00000 n 
+0000000204 00000 n 
+0000000279 00000 n 
+0000006217 00000 n 
+0000006353 00000 n 
+0000010880 00000 n 
+0000011016 00000 n 
+0000014239 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+14376
+%%EOF
