@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../../models/userModel');
 const RefreshToken = require('../../models/refreshTokenModel');
 const AppError = require('../../utils/AppError');
@@ -47,30 +48,60 @@ const AuthController = {
         return next(new AppError('A user with this email already exists', 400));
       }
 
-      // Create new user
-      const user = await User.create({ name, email, password });
+      const tempUserId = new mongoose.Types.ObjectId();
+      const accessToken = generateAccessToken(tempUserId);
+      const refreshToken = generateRefreshToken(tempUserId);
 
-      // Generate tokens
-      const accessToken = generateAccessToken(user._id);
-      const refreshToken = generateRefreshToken(user._id);
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const [user] = await User.create([{ _id: tempUserId, name, email, password }], { session });
+        await RefreshToken.create([{
+          token: refreshToken,
+          user: user._id,
+          expiresAt: getRefreshTokenExpiry(),
+        }], { session });
 
-      // Save refresh token to database
-      await RefreshToken.create({
-        token: refreshToken,
-        user: user._id,
-        expiresAt: getRefreshTokenExpiry(),
-      });
+        await session.commitTransaction();
+        session.endSession();
 
-      res.status(201).json({
-        status: 'success',
-        accessToken,
-        refreshToken,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-        },
-      });
+        res.status(201).json({
+          status: 'success',
+          accessToken,
+          refreshToken,
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+          },
+        });
+      } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+
+        // Graceful fallback for standalone MongoDB deployments where transactions are not supported.
+        if (err.message.includes('Transaction numbers are only allowed') || err.codeName === 'IllegalOperation') {
+          console.warn('⚠️ MongoDB standalone detected. Falling back to non-transaction setup.');
+          const user = await User.create({ _id: tempUserId, name, email, password });
+          await RefreshToken.create({
+            token: refreshToken,
+            user: user._id,
+            expiresAt: getRefreshTokenExpiry(),
+          });
+
+          return res.status(201).json({
+            status: 'success',
+            accessToken,
+            refreshToken,
+            user: {
+              id: user._id,
+              name: user.name,
+              email: user.email,
+            },
+          });
+        }
+        throw err;
+      }
     } catch (err) {
       next(err);
     }

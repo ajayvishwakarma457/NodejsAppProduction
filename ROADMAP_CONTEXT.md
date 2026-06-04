@@ -90,7 +90,7 @@ This document serves as the core context for building our Node.js application, d
 ### 5. Databases (Intermediate)
 - [x] MongoDB with Mongoose Setup & Connection
 - [x] Database seeding with Mongoose
-- MongoDB Transactions and rollbacks (session/replica sets)
+- [x] MongoDB Transactions and rollbacks (session/replica sets)
 - MongoDB Indexing strategies and query optimization
 - MongoDB Aggregation pipelines
 
