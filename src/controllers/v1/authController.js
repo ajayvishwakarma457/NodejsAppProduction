@@ -217,6 +217,82 @@ const AuthController = {
       next(err);
     }
   },
+
+  // POST /api/v1/auth/session/login
+  sessionLogin: async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return next(new AppError('Please provide email and password', 400));
+      }
+
+      const user = await User.findOne({ email }).select('+password');
+      if (!user || !(await user.correctPassword(password, user.password))) {
+        return next(new AppError('Incorrect email or password', 401));
+      }
+
+      // Store user details in session (saved to Redis automatically)
+      req.session.user = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
+
+      console.log('sessionLogin: ID =', req.sessionID, 'Session =', req.session);
+
+      req.session.save((err) => {
+        if (err) {
+          console.error('sessionLogin Save Error:', err);
+          return next(err);
+        }
+        console.log('sessionLogin Save Success!');
+        res.status(200).json({
+          status: 'success',
+          session: req.session.user,
+        });
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // GET /api/v1/auth/session/me
+  sessionMe: async (req, res, next) => {
+    try {
+      console.log('sessionMe: ID =', req.sessionID, 'Session =', req.session);
+      if (!req.session || !req.session.user) {
+        return next(new AppError('Unauthorized: No active session found.', 401));
+      }
+
+      res.status(200).json({
+        status: 'success',
+        session: req.session.user,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // POST /api/v1/auth/session/logout
+  sessionLogout: async (req, res, next) => {
+    try {
+      req.session.destroy((err) => {
+        if (err) {
+          return next(new AppError('Failed to destroy session.', 500));
+        }
+
+        res.clearCookie('connect.sid'); // Clear browser cookie
+        res.status(200).json({
+          status: 'success',
+          message: 'Logged out from session successfully',
+        });
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 
 module.exports = AuthController;

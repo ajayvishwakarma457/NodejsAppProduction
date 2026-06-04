@@ -3,22 +3,70 @@ const path = require('path');
 const helmet = require('helmet');
 const cors = require('cors');
 const passport = require('passport');
+const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
 const loggerMiddleware = require('./middlewares/v1/loggerMiddleware');
 const errorMiddleware = require('./middlewares/v1/errorMiddleware');
 const v1Router = require('./routes/v1');
 const AppError = require('./utils/AppError');
 const { globalRateLimiter } = require('./middlewares/v1/rateLimiter');
+const Redis = require('ioredis');
 
 // Initialize passport configuration
 require('./config/passport');
 
 const app = express();
 
+// Initialize separate Redis client for session store
+const sessionRedisClient = new Redis({
+  host: process.env.REDIS_HOST || '127.0.0.1',
+  port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  password: process.env.REDIS_PASSWORD || undefined,
+});
+
+sessionRedisClient.on('error', (err) => {
+  console.error('Session Redis Client Error:', err);
+});
+
 // --- 1. Global Middlewares ---
 // Secure HTTP headers
 app.use(helmet());
 app.use(passport.initialize());
 
+// Configure Redis Session Store
+const sessionStore = new RedisStore({
+  client: sessionRedisClient,
+  prefix: 'sess:',
+});
+
+sessionStore.on('error', (err) => {
+  console.error('Session Store Error:', err);
+});
+
+// Configure Session Middleware
+app.use(
+  session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || 'fallback-secret-for-session',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax',
+    },
+  })
+);
+app.use((req, res, next) => {
+  console.log('--- DEBUG SESSION ---');
+  console.log('Path:', req.path);
+  console.log('Cookie Header:', req.headers.cookie);
+  console.log('Session ID:', req.sessionID);
+  console.log('Session User:', req.session ? req.session.user : 'No Session Object');
+  console.log('---------------------');
+  next();
+});
 // Cross-Origin Resource Sharing (CORS) Configuration
 const corsOptions = {
   origin: (origin, callback) => {
@@ -61,6 +109,8 @@ app.use(loggerMiddleware);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
+
 
 // --- 2. Routes ---
 app.use('/api/v1', v1Router);
