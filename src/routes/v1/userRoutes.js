@@ -1,31 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require('../controllers/userController');
+const UserController = require('../../controllers/userController');
+const AppError = require('../../utils/AppError');
 
-// Route-level middleware example: validate numeric ID
+// Route-level middleware to validate ID
 const validateId = (req, res, next) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
-    const error = new Error("Invalid User ID. Must be a number.");
-    error.status = 400;
-    return next(error);
+    // Pass validation error to next middleware
+    return next(new AppError("Invalid User ID. Must be a numeric value.", 400));
   }
   next();
 };
 
-// GET all users
+// Map CRUD routes to UserController
 router.get('/', UserController.getUsers);
-
-// GET user by ID (with route-level middleware)
 router.get('/:id', validateId, UserController.getUserById);
-
-// POST create user
 router.post('/', UserController.createUser);
-
-// PUT update user
 router.put('/:id', validateId, UserController.updateUser);
-
-// DELETE user
 router.delete('/:id', validateId, UserController.deleteUser);
 
 module.exports = router;

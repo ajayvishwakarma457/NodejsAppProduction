@@ -2,7 +2,8 @@ const express = require('express');
 const path = require('path');
 const loggerMiddleware = require('./middlewares/loggerMiddleware');
 const errorMiddleware = require('./middlewares/errorMiddleware');
-const userRoutes = require('./routes/userRoutes');
+const v1Router = require('./routes/v1');
+const AppError = require('./utils/AppError');
 
 const app = express();
 
@@ -18,13 +19,11 @@ app.use(loggerMiddleware);
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // --- 2. Routes ---
-app.use('/api/users', userRoutes);
+app.use('/api/v1', v1Router);
 
 // Catch-all route handler for non-existent routes
 app.use((req, res, next) => {
-  const error = new Error(`Cannot ${req.method} ${req.originalUrl}`);
-  error.status = 404;
-  next(error); // Passes to error handling middleware
+  next(new AppError(`Cannot find ${req.method} ${req.originalUrl} on this server!`, 404));
 });
 
 // --- 3. Centralized Error Middleware ---

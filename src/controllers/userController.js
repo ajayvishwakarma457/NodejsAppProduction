@@ -1,31 +1,30 @@
 const UserModel = require('../models/userModel');
+const AppError = require('../utils/AppError');
 
 const UserController = {
-  // GET /api/users (with optional query string search ?name=xxx)
+  // GET /api/v1/users (with optional query string search ?name=xxx)
   getUsers: (req, res, next) => {
     try {
       let users = UserModel.getAll();
-      const { name } = req.query; // Query strings parsing
+      const { name } = req.query;
       
       if (name) {
         users = users.filter(u => u.name.toLowerCase().includes(name.toLowerCase()));
       }
       res.json(users);
     } catch (err) {
-      next(err); // Pass error to express centralized error handler
+      next(err);
     }
   },
   
-  // GET /api/users/:id (Request params parsing)
+  // GET /api/v1/users/:id
   getUserById: (req, res, next) => {
     try {
       const id = parseInt(req.params.id, 10);
       const user = UserModel.getById(id);
       
       if (!user) {
-        const error = new Error(`User with ID ${id} not found`);
-        error.status = 404;
-        throw error;
+        return next(new AppError(`User with ID ${id} not found`, 404));
       }
       res.json(user);
     } catch (err) {
@@ -33,15 +32,13 @@ const UserController = {
     }
   },
   
-  // POST /api/users (Request body parsing)
+  // POST /api/v1/users
   createUser: (req, res, next) => {
     try {
       const { name, email } = req.body;
       
       if (!name || !email) {
-        const error = new Error("Name and email are required fields");
-        error.status = 400;
-        throw error;
+        return next(new AppError("Name and email are required fields", 400));
       }
       
       const newUser = UserModel.create({ name, email });
@@ -51,16 +48,14 @@ const UserController = {
     }
   },
   
-  // PUT /api/users/:id
+  // PUT /api/v1/users/:id
   updateUser: (req, res, next) => {
     try {
       const id = parseInt(req.params.id, 10);
       const updatedUser = UserModel.update(id, req.body);
       
       if (!updatedUser) {
-        const error = new Error(`User with ID ${id} not found to update`);
-        error.status = 404;
-        throw error;
+        return next(new AppError(`User with ID ${id} not found to update`, 404));
       }
       res.json(updatedUser);
     } catch (err) {
@@ -68,18 +63,16 @@ const UserController = {
     }
   },
   
-  // DELETE /api/users/:id
+  // DELETE /api/v1/users/:id
   deleteUser: (req, res, next) => {
     try {
       const id = parseInt(req.params.id, 10);
       const deleted = UserModel.delete(id);
       
       if (!deleted) {
-        const error = new Error(`User with ID ${id} not found to delete`);
-        error.status = 404;
-        throw error;
+        return next(new AppError(`User with ID ${id} not found to delete`, 404));
       }
-      res.status(204).end(); // 204 No Content
+      res.status(204).end();
     } catch (err) {
       next(err);
     }

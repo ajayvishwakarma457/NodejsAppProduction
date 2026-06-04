@@ -1,14 +1,39 @@
+const sendErrorDev = (err, res) => {
+  res.status(err.statusCode).json({
+    status: err.status,
+    error: err,
+    message: err.message,
+    stack: err.stack
+  });
+};
+
+const sendErrorProd = (err, res) => {
+  // Operational, trusted error: send message to client
+  if (err.isOperational) {
+    res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message
+    });
+  } else {
+    // Programming or other unknown error: don't leak details
+    console.error('ERROR 💥:', err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went very wrong!'
+    });
+  }
+};
+
 // Centralized error handling middleware
 const errorMiddleware = (err, req, res, next) => {
-  const statusCode = err.status || 500;
-  console.error(`[ERROR] Status: ${statusCode} - Message: ${err.message}`);
-  
-  res.status(statusCode).json({
-    error: {
-      status: statusCode,
-      message: err.message || "Internal Server Error"
-    }
-  });
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  if (process.env.NODE_ENV === 'development') {
+    sendErrorDev(err, res);
+  } else {
+    sendErrorProd(err, res);
+  }
 };
 
 module.exports = errorMiddleware;

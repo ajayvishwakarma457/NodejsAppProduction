@@ -67,11 +67,10 @@ This document serves as the core context for building our Node.js application, d
 - [x] Type-safe environment variables with `zod` (runtime schema validation)
 
 
-### 2. Advanced Express & Alternatives
-- Fastify — faster alternative to Express — Performance-focused projects
-- NestJS — enterprise framework with decorators, DI, modules
-- Hono — lightweight, edge-compatible
-- Route organization, versioning (/api/v1), error handling middleware
+### 2. Advanced Express & Alternatives [COMPLETED]
+- [x] Fastify / NestJS / Hono (Skipped to stick to Express)
+- [x] Route organization, versioning (/api/v1), and custom error handling middleware
+
 
 ### 3. Input Validation & Security
 - Zod — schema validation and TypeScript inference — Recommended
