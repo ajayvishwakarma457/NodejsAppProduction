@@ -73,11 +73,12 @@ This document serves as the core context for building our Node.js application, d
 
 
 ### 3. Input Validation & Security
-- Zod — schema validation and TypeScript inference — Recommended
-- Joi or express-validator
+- [x] Zod — schema validation and TypeScript inference (applied as generic validation middleware on Express routes)
+- Joi or express-validator (Skipped in favor of Zod)
 - Helmet.js — secure HTTP headers
 - CORS configuration
 - Rate limiting with express-rate-limit + Redis store
+
 
 ### 4. Authentication & Authorization
 - JWT access tokens + refresh token rotation

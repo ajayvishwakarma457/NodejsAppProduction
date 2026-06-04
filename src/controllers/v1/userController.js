@@ -20,7 +20,7 @@ const UserController = {
   // GET /api/v1/users/:id
   getUserById: (req, res, next) => {
     try {
-      const id = parseInt(req.params.id, 10);
+      const { id } = req.params; // Already validated & transformed to a Number by Zod
       const user = UserModel.getById(id);
       
       if (!user) {
@@ -35,12 +35,8 @@ const UserController = {
   // POST /api/v1/users
   createUser: (req, res, next) => {
     try {
+      // Body has already been validated and structured by Zod
       const { name, email } = req.body;
-      
-      if (!name || !email) {
-        return next(new AppError("Name and email are required fields", 400));
-      }
-      
       const newUser = UserModel.create({ name, email });
       res.status(201).json(newUser);
     } catch (err) {
@@ -51,7 +47,7 @@ const UserController = {
   // PUT /api/v1/users/:id
   updateUser: (req, res, next) => {
     try {
-      const id = parseInt(req.params.id, 10);
+      const { id } = req.params; // Transformed to Number
       const updatedUser = UserModel.update(id, req.body);
       
       if (!updatedUser) {
@@ -66,7 +62,7 @@ const UserController = {
   // DELETE /api/v1/users/:id
   deleteUser: (req, res, next) => {
     try {
-      const id = parseInt(req.params.id, 10);
+      const { id } = req.params; // Transformed to Number
       const deleted = UserModel.delete(id);
       
       if (!deleted) {

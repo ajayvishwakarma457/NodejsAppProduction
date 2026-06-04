@@ -1,23 +1,34 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../../controllers/v1/userController');
-const AppError = require('../../utils/AppError');
+const validateRequest = require('../../middlewares/v1/validationMiddleware');
+const userValidation = require('../../validations/v1/userValidation');
 
-// Route-level middleware to validate ID
-const validateId = (req, res, next) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) {
-    // Pass validation error to next middleware
-    return next(new AppError("Invalid User ID. Must be a numeric value.", 400));
-  }
-  next();
-};
-
-// Map CRUD routes to UserController
+// Map CRUD routes to UserController with Zod schema validation
 router.get('/', UserController.getUsers);
-router.get('/:id', validateId, UserController.getUserById);
-router.post('/', UserController.createUser);
-router.put('/:id', validateId, UserController.updateUser);
-router.delete('/:id', validateId, UserController.deleteUser);
+
+router.get(
+  '/:id', 
+  validateRequest(userValidation.getUserById), 
+  UserController.getUserById
+);
+
+router.post(
+  '/', 
+  validateRequest(userValidation.createUser), 
+  UserController.createUser
+);
+
+router.put(
+  '/:id', 
+  validateRequest(userValidation.updateUser), 
+  UserController.updateUser
+);
+
+router.delete(
+  '/:id', 
+  validateRequest(userValidation.getUserById), 
+  UserController.deleteUser
+);
 
 module.exports = router;
