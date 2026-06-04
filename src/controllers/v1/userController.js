@@ -19,6 +19,57 @@ const UserController = {
       next(err);
     }
   },
+
+  // GET /api/v1/users/search
+  searchUsers: async (req, res, next) => {
+    try {
+      const { q } = req.query;
+      if (!q) {
+        return next(new AppError('Please provide a search term via ?q=', 400));
+      }
+
+      // Optimize: lean() to skip mongoose document instantiation, select() to retrieve required fields only
+      const users = await User.find(
+        { $text: { $search: q } },
+        { score: { $meta: 'textScore' } }
+      )
+        .sort({ score: { $meta: 'textScore' } })
+        .select('name email role')
+        .lean();
+
+      res.status(200).json({
+        status: 'success',
+        results: users.length,
+        data: users,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // GET /api/v1/users/search/explain
+  explainSearch: async (req, res, next) => {
+    try {
+      const { q } = req.query;
+      if (!q) {
+        return next(new AppError('Please provide a search term via ?q=', 400));
+      }
+
+      // Generate the query plan explanation
+      const explanation = await User.find(
+        { $text: { $search: q } }
+      )
+        .select('name email role')
+        .explain('executionStats');
+
+      res.status(200).json({
+        status: 'success',
+        explanation,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
   
   // GET /api/v1/users/:id
   getUserById: async (req, res, next) => {

@@ -31,6 +31,9 @@ const apiKeySchema = new mongoose.Schema(
   }
 );
 
+// Compound index to ensure uniqueness of API key names per user
+apiKeySchema.index({ user: 1, name: 1 }, { unique: true });
+
 const ApiKey = mongoose.model('ApiKey', apiKeySchema);
 
 module.exports = ApiKey;

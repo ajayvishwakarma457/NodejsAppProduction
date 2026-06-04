@@ -8,6 +8,9 @@ const { authenticate, restrictTo } = require('../../middlewares/v1/authMiddlewar
 // Map CRUD routes to UserController with Zod schema validation
 router.use(authenticate);
 
+router.get('/search', UserController.searchUsers);
+router.get('/search/explain', UserController.explainSearch);
+
 router.get('/', restrictTo('admin', 'moderator'), UserController.getUsers);
 
 router.get(
