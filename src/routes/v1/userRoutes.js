@@ -3,8 +3,11 @@ const router = express.Router();
 const UserController = require('../../controllers/v1/userController');
 const validateRequest = require('../../middlewares/v1/validationMiddleware');
 const userValidation = require('../../validations/v1/userValidation');
+const { protect } = require('../../middlewares/v1/authMiddleware');
 
 // Map CRUD routes to UserController with Zod schema validation
+router.use(protect);
+
 router.get('/', UserController.getUsers);
 
 router.get(

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
   {
@@ -14,15 +15,22 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    password: {
+      type: String,
+      required: [true, 'Please provide a password'],
+      minlength: [6, 'Password must be at least 6 characters long'],
+      select: false, // Don't return password by default in queries
+    },
   },
   {
-    timestamps: true, // Automatically manage createdAt and updatedAt fields
+    timestamps: true,
     toJSON: {
       virtuals: true,
       transform: (doc, ret) => {
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
+        delete ret.password; // Double check it doesn't get leaked
       },
     },
     toObject: {
@@ -31,10 +39,26 @@ const userSchema = new mongoose.Schema(
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
+        delete ret.password;
       },
     },
   }
 );
+
+// Encrypt password before saving
+userSchema.pre('save', async function (next) {
+  // Only run this function if password was actually modified
+  if (!this.isModified('password')) return next();
+
+  // Hash password with cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+// Instance method to check if candidate password matches stored hash
+userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 const User = mongoose.model('User', userSchema);
 
