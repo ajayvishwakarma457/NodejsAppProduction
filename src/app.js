@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
 const loggerMiddleware = require('./middlewares/v1/loggerMiddleware');
 const errorMiddleware = require('./middlewares/v1/errorMiddleware');
 const v1Router = require('./routes/v1');
@@ -8,6 +9,9 @@ const AppError = require('./utils/AppError');
 const app = express();
 
 // --- 1. Global Middlewares ---
+// Secure HTTP headers
+app.use(helmet());
+
 // Body parsing middlewares
 app.use(express.json()); // parses application/json
 app.use(express.urlencoded({ extended: true })); // parses application/x-www-form-urlencoded
