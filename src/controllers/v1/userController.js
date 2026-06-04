@@ -137,6 +137,56 @@ const UserController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  // GET /api/v1/users/stats
+  getUserStats: async (req, res, next) => {
+    try {
+      const stats = await User.aggregate([
+        {
+          $facet: {
+            totalUsers: [
+              { $count: 'count' }
+            ],
+            byRole: [
+              {
+                $group: {
+                  _id: '$role',
+                  count: { $sum: 1 }
+                }
+              },
+              { $sort: { count: -1 } }
+            ],
+            byMonth: [
+              {
+                $group: {
+                  _id: {
+                    month: { $month: '$createdAt' },
+                    year: { $year: '$createdAt' }
+                  },
+                  count: { $sum: 1 }
+                }
+              },
+              { $sort: { '_id.year': -1, '_id.month': -1 } }
+            ]
+          }
+        },
+        {
+          $project: {
+            totalUsers: { $arrayElemAt: ['$totalUsers.count', 0] },
+            byRole: 1,
+            byMonth: 1
+          }
+        }
+      ]);
+
+      res.status(200).json({
+        status: 'success',
+        data: stats[0] || { totalUsers: 0, byRole: [], byMonth: [] }
+      });
+    } catch (err) {
+      next(err);
+    }
   }
 };
 

@@ -10,6 +10,7 @@ router.use(authenticate);
 
 router.get('/search', UserController.searchUsers);
 router.get('/search/explain', UserController.explainSearch);
+router.get('/stats', restrictTo('admin'), UserController.getUserStats);
 
 router.get('/', restrictTo('admin', 'moderator'), UserController.getUsers);
 

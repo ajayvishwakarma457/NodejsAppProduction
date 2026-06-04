@@ -92,7 +92,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] Database seeding with Mongoose
 - [x] MongoDB Transactions and rollbacks (session/replica sets)
 - [x] MongoDB Indexing strategies and query optimization
-- MongoDB Aggregation pipelines
+- [x] MongoDB Aggregation pipelines
 
 ### 6. Caching
 - Redis fundamentals: strings, hashes, sorted sets, TTL
