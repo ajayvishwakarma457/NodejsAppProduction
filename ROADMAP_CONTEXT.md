@@ -69,7 +69,7 @@ This document serves as the core context for building our Node.js application, d
 
 ### 2. Advanced Express & Alternatives [COMPLETED]
 - [x] Fastify / NestJS / Hono (Skipped to stick to Express)
-- [x] Route organization, versioning (/api/v1), and custom error handling middleware
+- [x] Route organization, versioning (/api/v1), and custom error handling middleware (Restructured to use Full-Layer Versioning: v1 routes, controllers, and middlewares)
 
 
 ### 3. Input Validation & Security

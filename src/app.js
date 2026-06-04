@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
-const loggerMiddleware = require('./middlewares/loggerMiddleware');
-const errorMiddleware = require('./middlewares/errorMiddleware');
+const loggerMiddleware = require('./middlewares/v1/loggerMiddleware');
+const errorMiddleware = require('./middlewares/v1/errorMiddleware');
 const v1Router = require('./routes/v1');
 const AppError = require('./utils/AppError');
 

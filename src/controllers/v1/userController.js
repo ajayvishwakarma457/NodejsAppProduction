@@ -1,5 +1,5 @@
-const UserModel = require('../models/userModel');
-const AppError = require('../utils/AppError');
+const UserModel = require('../../models/userModel');
+const AppError = require('../../utils/AppError');
 
 const UserController = {
   // GET /api/v1/users (with optional query string search ?name=xxx)
