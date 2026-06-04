@@ -77,7 +77,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] Joi or express-validator (Implemented express-validator under /api/v1/ev-users routing path)
 - [x] Helmet.js — secure HTTP headers (implemented globally in app.js)
 - [x] CORS configuration (dynamically configured via CORS_ORIGIN env in app.js)
-- Rate limiting with express-rate-limit + Redis store
+- [x] Rate limiting with express-rate-limit + Redis store (implemented with fallback in rateLimiter.js)
 
 
 ### 4. Authentication & Authorization

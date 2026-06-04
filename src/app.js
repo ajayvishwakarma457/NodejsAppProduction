@@ -6,6 +6,7 @@ const loggerMiddleware = require('./middlewares/v1/loggerMiddleware');
 const errorMiddleware = require('./middlewares/v1/errorMiddleware');
 const v1Router = require('./routes/v1');
 const AppError = require('./utils/AppError');
+const { globalRateLimiter } = require('./middlewares/v1/rateLimiter');
 
 const app = express();
 
@@ -42,6 +43,9 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
+
+// Global Rate Limiting
+app.use(globalRateLimiter);
 
 // Body parsing middlewares
 app.use(express.json()); // parses application/json
