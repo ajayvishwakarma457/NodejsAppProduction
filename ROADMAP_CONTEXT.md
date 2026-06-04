@@ -96,7 +96,7 @@ This document serves as the core context for building our Node.js application, d
 
 ### 6. Caching
 - [x] Redis fundamentals: strings, hashes, sorted sets, TTL
-- ioredis or node-redis client
+- [x] ioredis or node-redis client
 - Cache-aside pattern — Most common pattern
 - Cache invalidation strategies
 - In-memory caching with node-cache for simple use cases
