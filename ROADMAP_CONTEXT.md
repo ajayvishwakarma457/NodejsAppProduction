@@ -105,7 +105,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] File uploads with Multer
 - [x] AWS S3 / Cloudflare R2 / MinIO integration
 - [x] Streaming large files
-- [ ] Image processing with Sharp
+- [x] Image processing with Sharp
 
 ### 8. Background Jobs & Queues
 - BullMQ with Redis — Production-recommended

@@ -50,6 +50,13 @@ router.post('/stream-upload', StreamController.streamUpload);
 // stream-download endpoint (handles HTTP range queries and pipes file stream)
 router.get('/stream-download/:filename', StreamController.streamDownload);
 
+// Image processing route
+const ImageController = require('../../controllers/v1/imageController');
+
+// optimize image upload endpoint (resizes and converts to webp)
+router.post('/optimize-image', s3Multer.single('file'), ImageController.optimizeImage);
+
 module.exports = router;
+
 
 
