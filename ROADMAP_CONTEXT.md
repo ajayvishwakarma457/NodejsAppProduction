@@ -95,7 +95,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] MongoDB Aggregation pipelines
 
 ### 6. Caching
-- Redis fundamentals: strings, hashes, sorted sets, TTL
+- [x] Redis fundamentals: strings, hashes, sorted sets, TTL
 - ioredis or node-redis client
 - Cache-aside pattern — Most common pattern
 - Cache invalidation strategies
