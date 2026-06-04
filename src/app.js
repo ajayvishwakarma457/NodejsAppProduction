@@ -2,17 +2,22 @@ const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
 const cors = require('cors');
+const passport = require('passport');
 const loggerMiddleware = require('./middlewares/v1/loggerMiddleware');
 const errorMiddleware = require('./middlewares/v1/errorMiddleware');
 const v1Router = require('./routes/v1');
 const AppError = require('./utils/AppError');
 const { globalRateLimiter } = require('./middlewares/v1/rateLimiter');
 
+// Initialize passport configuration
+require('./config/passport');
+
 const app = express();
 
 // --- 1. Global Middlewares ---
 // Secure HTTP headers
 app.use(helmet());
+app.use(passport.initialize());
 
 // Cross-Origin Resource Sharing (CORS) Configuration
 const corsOptions = {

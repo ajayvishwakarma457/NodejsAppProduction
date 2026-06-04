@@ -82,7 +82,7 @@ This document serves as the core context for building our Node.js application, d
 
 ### 4. Authentication & Authorization
 - [x] JWT access tokens + refresh token rotation (implemented secure RTR & reuse detection)
-- OAuth2 / social login (Passport.js, Auth.js)
+- [x] OAuth2 / social login (Passport.js, Auth.js) (implemented Google Strategy using Passport)
 - RBAC — Role-Based Access Control
 - API key authentication
 - Session management (express-session + Redis)

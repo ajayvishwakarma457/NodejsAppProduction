@@ -190,6 +190,33 @@ const AuthController = {
       next(err);
     }
   },
+
+  // GET /api/v1/auth/google/callback (handles passport redirect success)
+  googleSuccess: async (req, res, next) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return next(new AppError('Google authentication failed', 401));
+      }
+
+      // Generate tokens
+      const accessToken = generateAccessToken(user._id);
+      const refreshToken = generateRefreshToken(user._id);
+
+      // Save refresh token to database
+      await RefreshToken.create({
+        token: refreshToken,
+        user: user._id,
+        expiresAt: getRefreshTokenExpiry(),
+      });
+
+      // Redirect client to frontend dashboard passing tokens in URL query params
+      const redirectUrl = `${process.env.CLIENT_REDIRECT_URL || 'http://localhost:3000/auth-success'}?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+      res.redirect(redirectUrl);
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 
 module.exports = AuthController;
