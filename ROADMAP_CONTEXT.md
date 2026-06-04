@@ -104,7 +104,7 @@ This document serves as the core context for building our Node.js application, d
 ### 7. File Handling & Storage
 - [x] File uploads with Multer
 - [x] AWS S3 / Cloudflare R2 / MinIO integration
-- [ ] Streaming large files
+- [x] Streaming large files
 - [ ] Image processing with Sharp
 
 ### 8. Background Jobs & Queues

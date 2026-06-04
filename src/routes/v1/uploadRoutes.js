@@ -41,5 +41,15 @@ router.post('/single', upload.single('file'), UploadController.uploadSingle);
 // single file S3 upload endpoint, field name is 'file'
 router.post('/s3', s3Multer.single('file'), UploadController.uploadToS3);
 
+// Streaming routes
+const StreamController = require('../../controllers/v1/streamController');
+
+// stream-upload endpoint (processes incoming request stream directly)
+router.post('/stream-upload', StreamController.streamUpload);
+
+// stream-download endpoint (handles HTTP range queries and pipes file stream)
+router.get('/stream-download/:filename', StreamController.streamDownload);
+
 module.exports = router;
+
 
