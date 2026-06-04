@@ -76,7 +76,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] Zod — schema validation and TypeScript inference (applied as generic validation middleware on Express routes)
 - [x] Joi or express-validator (Implemented express-validator under /api/v1/ev-users routing path)
 - [x] Helmet.js — secure HTTP headers (implemented globally in app.js)
-- CORS configuration
+- [x] CORS configuration (dynamically configured via CORS_ORIGIN env in app.js)
 - Rate limiting with express-rate-limit + Redis store
 
 

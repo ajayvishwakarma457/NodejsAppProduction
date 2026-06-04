@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
+const cors = require('cors');
 const loggerMiddleware = require('./middlewares/v1/loggerMiddleware');
 const errorMiddleware = require('./middlewares/v1/errorMiddleware');
 const v1Router = require('./routes/v1');
@@ -11,6 +12,36 @@ const app = express();
 // --- 1. Global Middlewares ---
 // Secure HTTP headers
 app.use(helmet());
+
+// Cross-Origin Resource Sharing (CORS) Configuration
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or Postman)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+      : [];
+
+    // In development mode, allow all if CORS_ORIGIN is not explicitly configured
+    if (process.env.NODE_ENV === 'development' && allowedOrigins.length === 0) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      const error = new Error('Not allowed by CORS');
+      error.statusCode = 403; // Forbidden
+      callback(error);
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 
 // Body parsing middlewares
 app.use(express.json()); // parses application/json
