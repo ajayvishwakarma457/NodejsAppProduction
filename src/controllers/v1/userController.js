@@ -1,5 +1,6 @@
 const User = require('../../models/userModel');
 const AppError = require('../../utils/AppError');
+const { redisClient } = require('../../middlewares/v1/rateLimiter');
 
 const UserController = {
   // GET /api/v1/users (with optional query string search ?name=xxx)
@@ -75,11 +76,25 @@ const UserController = {
   getUserById: async (req, res, next) => {
     try {
       const { id } = req.params;
+      const cacheKey = `user_cache:${id}`;
+
+      // 1. Try fetching from Redis cache
+      const cachedUser = await redisClient.get(cacheKey);
+      if (cachedUser) {
+        console.log(`[Cache-aside] Cache HIT for user:${id}`);
+        return res.json(JSON.parse(cachedUser));
+      }
+
+      console.log(`[Cache-aside] Cache MISS for user:${id}. Querying database...`);
+      // 2. Query database on Cache Miss
       const user = await User.findById(id);
-      
       if (!user) {
         return next(new AppError(`User with ID ${id} not found`, 404));
       }
+
+      // 3. Save to Redis cache with a 1-hour TTL (3600 seconds)
+      await redisClient.set(cacheKey, JSON.stringify(user), 'EX', 3600);
+
       res.json(user);
     } catch (err) {
       next(err);
@@ -118,6 +133,12 @@ const UserController = {
       if (!updatedUser) {
         return next(new AppError(`User with ID ${id} not found to update`, 404));
       }
+
+      // 4. Invalidate cache on update (Delete key)
+      const cacheKey = `user_cache:${id}`;
+      await redisClient.del(cacheKey);
+      console.log(`[Cache-aside] Cache invalidated for user:${id} on update.`);
+
       res.json(updatedUser);
     } catch (err) {
       next(err);
@@ -133,6 +154,12 @@ const UserController = {
       if (!deletedUser) {
         return next(new AppError(`User with ID ${id} not found to delete`, 404));
       }
+
+      // 5. Invalidate cache on delete (Delete key)
+      const cacheKey = `user_cache:${id}`;
+      await redisClient.del(cacheKey);
+      console.log(`[Cache-aside] Cache invalidated for user:${id} on deletion.`);
+
       res.status(204).end();
     } catch (err) {
       next(err);
