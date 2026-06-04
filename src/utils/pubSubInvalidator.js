@@ -1,5 +1,6 @@
 const Redis = require('ioredis');
 const { redisClient } = require('../middlewares/v1/rateLimiter');
+const localCache = require('./localCache');
 
 // Create a dedicated Redis client for subscription (as subscriber clients cannot run normal commands)
 const subRedisClient = new Redis({
@@ -33,7 +34,11 @@ const PubSubInvalidator = {
       if (channel === CHANNEL_NAME) {
         console.log(`🔔 [Pub/Sub Invalidation] Broadcast received to invalidate key: "${message}"`);
         
-        // Physically delete from the main Redis database
+        // Purge key from local memory cache (L1)
+        localCache.del(message);
+        console.log(`🧹 [Pub/Sub Invalidation] Deleted key "${message}" from L1 Local Cache.`);
+
+        // Physically delete from the main Redis database (L2)
         await redisClient.del(message);
         console.log(`🧹 [Pub/Sub Invalidation] Deleted key "${message}" from Redis.`);
       }

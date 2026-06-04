@@ -99,7 +99,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] ioredis or node-redis client
 - [x] Cache-aside pattern — Most common pattern
 - [x] Cache invalidation strategies
-- In-memory caching with node-cache for simple use cases
+- [x] In-memory caching with node-cache for simple use cases
 
 ### 7. File Handling & Storage
 - File uploads with Multer

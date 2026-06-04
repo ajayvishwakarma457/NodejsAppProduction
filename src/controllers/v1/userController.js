@@ -2,6 +2,7 @@ const User = require('../../models/userModel');
 const AppError = require('../../utils/AppError');
 const { redisClient } = require('../../middlewares/v1/rateLimiter');
 const PubSubInvalidator = require('../../utils/pubSubInvalidator');
+const localCache = require('../../utils/localCache');
 
 const UserController = {
   // GET /api/v1/users (with optional query string search ?name=xxx)
@@ -79,22 +80,38 @@ const UserController = {
       const { id } = req.params;
       const cacheKey = `user_cache:${id}`;
 
-      // 1. Try fetching from Redis cache
-      const cachedUser = await redisClient.get(cacheKey);
-      if (cachedUser) {
-        console.log(`[Cache-aside] Cache HIT for user:${id}`);
-        return res.json(JSON.parse(cachedUser));
+      // 1. Try fetching from L1 Cache (local memory)
+      const cachedL1 = localCache.get(cacheKey);
+      if (cachedL1) {
+        console.log(`[Cache-aside] L1 HIT for user:${id}`);
+        return res.json(cachedL1);
       }
 
-      console.log(`[Cache-aside] Cache MISS for user:${id}. Querying database...`);
-      // 2. Query database on Cache Miss
+      console.log(`[Cache-aside] L1 MISS for user:${id}. Checking L2 Cache (Redis)...`);
+
+      // 2. Try fetching from L2 Cache (Redis)
+      const cachedL2 = await redisClient.get(cacheKey);
+      if (cachedL2) {
+        console.log(`[Cache-aside] L2 HIT for user:${id}. Populating L1...`);
+        const userObj = JSON.parse(cachedL2);
+        
+        // Save to local cache L1 (5 minutes TTL = 300s)
+        localCache.set(cacheKey, userObj, 300);
+        return res.json(userObj);
+      }
+
+      console.log(`[Cache-aside] L2 MISS for user:${id}. Querying MongoDB database...`);
+      // 3. Query database on L1/L2 Cache Miss
       const user = await User.findById(id);
       if (!user) {
         return next(new AppError(`User with ID ${id} not found`, 404));
       }
 
-      // 3. Save to Redis cache with a 1-hour TTL (3600 seconds)
+      // 4. Save to Redis L2 (1-hour TTL = 3600s)
       await redisClient.set(cacheKey, JSON.stringify(user), 'EX', 3600);
+
+      // 5. Save to local cache L1 (5 minutes TTL = 300s)
+      localCache.set(cacheKey, user.toObject(), 300);
 
       res.json(user);
     } catch (err) {
