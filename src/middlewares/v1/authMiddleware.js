@@ -49,7 +49,20 @@ const restrictTo = (...roles) => {
   };
 };
 
+const authenticate = async (req, res, next) => {
+  const { apiKeyAuth } = require('./apiKeyMiddleware'); // avoid circular dependency if any
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    return protect(req, res, next);
+  }
+  if (req.headers['x-api-key']) {
+    return apiKeyAuth(req, res, next);
+  }
+  return next(new AppError('Authentication required. Provide Bearer JWT token or x-api-key header.', 401));
+};
+
 module.exports = {
   protect,
   restrictTo,
+  authenticate,
 };
