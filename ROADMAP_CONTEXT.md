@@ -102,7 +102,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] In-memory caching with node-cache for simple use cases
 
 ### 7. File Handling & Storage
-- File uploads with Multer
+- [x] File uploads with Multer
 - AWS S3 / Cloudflare R2 / MinIO integration
 - Streaming large files
 - Image processing with Sharp
