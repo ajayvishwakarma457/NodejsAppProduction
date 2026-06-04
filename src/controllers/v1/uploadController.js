@@ -1,4 +1,5 @@
 const AppError = require('../../utils/AppError');
+const s3Service = require('../../utils/s3Service');
 
 const UploadController = {
   // POST /api/v1/uploads/single
@@ -26,6 +27,28 @@ const UploadController = {
       next(err);
     }
   },
+
+  // POST /api/v1/uploads/s3
+  uploadToS3: async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return next(new AppError('Please provide a file to upload to S3', 400));
+      }
+
+      const result = await s3Service.uploadToS3(req.file);
+
+      res.status(201).json({
+        status: 'success',
+        message: s3Service.isMock
+          ? 'File successfully uploaded (local S3 fallback mock)'
+          : 'File uploaded successfully to AWS S3',
+        file: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 
 module.exports = UploadController;
+
