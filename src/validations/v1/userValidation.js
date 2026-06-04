@@ -1,7 +1,7 @@
 const { z } = require('zod');
 
-// Schema for user ID validation inside request parameters
-const userIdParamSchema = z.string().regex(/^\d+$/, { message: "User ID must be a numeric string" }).transform(Number);
+// Schema for user ID validation inside request parameters (24-character hex ObjectId)
+const userIdParamSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, { message: "User ID must be a valid 24-character MongoDB ObjectId hex string" });
 
 const userValidation = {
   // POST /api/v1/users

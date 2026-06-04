@@ -1,16 +1,19 @@
-const UserModel = require('../../models/userModel');
+const User = require('../../models/userModel');
 const AppError = require('../../utils/AppError');
 
 const UserController = {
   // GET /api/v1/users (with optional query string search ?name=xxx)
-  getUsers: (req, res, next) => {
+  getUsers: async (req, res, next) => {
     try {
-      let users = UserModel.getAll();
       const { name } = req.query;
-      
+      let query = {};
+
       if (name) {
-        users = users.filter(u => u.name.toLowerCase().includes(name.toLowerCase()));
+        // Case-insensitive regex search
+        query.name = { $regex: name, $options: 'i' };
       }
+
+      const users = await User.find(query);
       res.json(users);
     } catch (err) {
       next(err);
@@ -18,10 +21,10 @@ const UserController = {
   },
   
   // GET /api/v1/users/:id
-  getUserById: (req, res, next) => {
+  getUserById: async (req, res, next) => {
     try {
-      const { id } = req.params; // Already validated & transformed to a Number by Zod
-      const user = UserModel.getById(id);
+      const { id } = req.params;
+      const user = await User.findById(id);
       
       if (!user) {
         return next(new AppError(`User with ID ${id} not found`, 404));
@@ -33,11 +36,17 @@ const UserController = {
   },
   
   // POST /api/v1/users
-  createUser: (req, res, next) => {
+  createUser: async (req, res, next) => {
     try {
-      // Body has already been validated and structured by Zod
       const { name, email } = req.body;
-      const newUser = UserModel.create({ name, email });
+
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return next(new AppError('A user with this email already exists', 400));
+      }
+
+      const newUser = await User.create({ name, email });
       res.status(201).json(newUser);
     } catch (err) {
       next(err);
@@ -45,10 +54,15 @@ const UserController = {
   },
   
   // PUT /api/v1/users/:id
-  updateUser: (req, res, next) => {
+  updateUser: async (req, res, next) => {
     try {
-      const { id } = req.params; // Transformed to Number
-      const updatedUser = UserModel.update(id, req.body);
+      const { id } = req.params;
+      
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        req.body,
+        { new: true, runValidators: true }
+      );
       
       if (!updatedUser) {
         return next(new AppError(`User with ID ${id} not found to update`, 404));
@@ -60,12 +74,12 @@ const UserController = {
   },
   
   // DELETE /api/v1/users/:id
-  deleteUser: (req, res, next) => {
+  deleteUser: async (req, res, next) => {
     try {
-      const { id } = req.params; // Transformed to Number
-      const deleted = UserModel.delete(id);
+      const { id } = req.params;
+      const deletedUser = await User.findByIdAndDelete(id);
       
-      if (!deleted) {
+      if (!deletedUser) {
         return next(new AppError(`User with ID ${id} not found to delete`, 404));
       }
       res.status(204).end();

@@ -18,16 +18,14 @@ const userExpressValidator = {
   validateId: [
     param('id')
       .trim()
-      .isInt().withMessage('User ID must be an integer')
-      .toInt()
+      .isMongoId().withMessage('User ID must be a valid MongoDB ObjectId')
   ],
 
   // Validate PUT request
   updateUser: [
     param('id')
       .trim()
-      .isInt().withMessage('User ID must be an integer')
-      .toInt(),
+      .isMongoId().withMessage('User ID must be a valid MongoDB ObjectId'),
     body('name')
       .optional()
       .trim()
