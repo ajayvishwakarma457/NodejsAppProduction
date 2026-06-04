@@ -88,12 +88,11 @@ This document serves as the core context for building our Node.js application, d
 - [x] Session management (express-session + Redis)
 
 ### 5. Databases (Intermediate)
-- PostgreSQL with Prisma ORM — Industry standard
-- TypeORM or Drizzle ORM alternatives
-- Database migrations and seeding
-- Transactions and rollbacks
-- Indexing strategies and query optimization
-- MongoDB aggregation pipelines
+- [x] MongoDB with Mongoose Setup & Connection
+- Database seeding with Mongoose
+- MongoDB Transactions and rollbacks (session/replica sets)
+- MongoDB Indexing strategies and query optimization
+- MongoDB Aggregation pipelines
 
 ### 6. Caching
 - Redis fundamentals: strings, hashes, sorted sets, TTL
