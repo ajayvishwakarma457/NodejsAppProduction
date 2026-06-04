@@ -15,6 +15,10 @@ const startServer = async () => {
 
   const server = app.listen(PORT, () => {
     console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    
+    // Initialize cache Pub/Sub invalidation listener
+    const PubSubInvalidator = require('./utils/pubSubInvalidator');
+    PubSubInvalidator.initListener();
   });
 
   // Handle graceful shutdown

@@ -1,6 +1,7 @@
 const User = require('../../models/userModel');
 const AppError = require('../../utils/AppError');
 const { redisClient } = require('../../middlewares/v1/rateLimiter');
+const PubSubInvalidator = require('../../utils/pubSubInvalidator');
 
 const UserController = {
   // GET /api/v1/users (with optional query string search ?name=xxx)
@@ -134,10 +135,9 @@ const UserController = {
         return next(new AppError(`User with ID ${id} not found to update`, 404));
       }
 
-      // 4. Invalidate cache on update (Delete key)
+      // 4. Invalidate cache on update (Publish event)
       const cacheKey = `user_cache:${id}`;
-      await redisClient.del(cacheKey);
-      console.log(`[Cache-aside] Cache invalidated for user:${id} on update.`);
+      await PubSubInvalidator.publishInvalidation(cacheKey);
 
       res.json(updatedUser);
     } catch (err) {
@@ -155,10 +155,9 @@ const UserController = {
         return next(new AppError(`User with ID ${id} not found to delete`, 404));
       }
 
-      // 5. Invalidate cache on delete (Delete key)
+      // 5. Invalidate cache on delete (Publish event)
       const cacheKey = `user_cache:${id}`;
-      await redisClient.del(cacheKey);
-      console.log(`[Cache-aside] Cache invalidated for user:${id} on deletion.`);
+      await PubSubInvalidator.publishInvalidation(cacheKey);
 
       res.status(204).end();
     } catch (err) {
