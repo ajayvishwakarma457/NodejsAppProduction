@@ -12,6 +12,7 @@ const AppError = require('./utils/AppError');
 const { globalRateLimiter } = require('./middlewares/v1/rateLimiter');
 const Redis = require('ioredis');
 const correlationIdMiddleware = require('./middlewares/v1/correlationIdMiddleware');
+const versionNegotiator = require('./middlewares/v1/versionNegotiator');
 
 const logger = require('./utils/logger');
 
@@ -22,6 +23,7 @@ const app = express();
 
 // --- 0. Request Context & Tracing Middleware ---
 app.use(correlationIdMiddleware);
+app.use(versionNegotiator);
 
 // Initialize separate Redis client for session store
 const sessionRedisClient = new Redis({

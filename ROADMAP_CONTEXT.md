@@ -135,8 +135,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] Pagination: cursor-based vs offset-based (refactored getUsers endpoint with dual modes)
 - [x] Filtering, sorting, field selection (implemented query parsers in userController)
 - [x] OpenAPI / Swagger documentation (mounted swagger-ui-express and swagger.json spec)
-- [x] Idempotency keys for safe retries (implemented redis transaction caching middleware)
-- API versioning strategies
+- [x] API versioning strategies (implemented versionNegotiator middleware mapping path, query, and headers)
 
 ---
 
