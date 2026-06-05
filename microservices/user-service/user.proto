@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package user;
+
+// Bounded Context User Service
+service UserService {
+  // RPC method to query user info by ID
+  rpc GetUserInfo (UserRequest) returns (UserResponse);
+}
+
+message UserRequest {
+  string id = 1;
+}
+
+message UserResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+  string createdAt = 5;
+}
