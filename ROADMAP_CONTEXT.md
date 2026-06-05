@@ -111,7 +111,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] BullMQ with Redis — Production-recommended
 - [x] Job scheduling with cron (node-cron)
 - [x] Retry logic, dead letter queues, job priorities
-- Event-driven patterns with EventEmitter
+- [x] Event-driven patterns with EventEmitter
 
 ### 9. WebSockets & Real-time
 - Socket.io — rooms, namespaces, broadcasting

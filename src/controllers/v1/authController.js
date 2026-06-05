@@ -65,6 +65,15 @@ const AuthController = {
         await session.commitTransaction();
         session.endSession();
 
+        // Emit user:registered event for decoupled workflows
+        const appEventEmitter = require('../../utils/appEventEmitter');
+        console.log(`[AuthController] Emitting user:registered event for user: ${user.email}`);
+        appEventEmitter.emit('user:registered', {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        });
+
         res.status(201).json({
           status: 'success',
           accessToken,
@@ -87,6 +96,15 @@ const AuthController = {
             token: refreshToken,
             user: user._id,
             expiresAt: getRefreshTokenExpiry(),
+          });
+
+          // Emit user:registered event for decoupled workflows in fallback setup
+          const appEventEmitter = require('../../utils/appEventEmitter');
+          console.log(`[AuthController] Emitting user:registered event (fallback path) for user: ${user.email}`);
+          appEventEmitter.emit('user:registered', {
+            id: user._id,
+            name: user.name,
+            email: user.email,
           });
 
           return res.status(201).json({

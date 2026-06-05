@@ -26,6 +26,9 @@ const startServer = async () => {
     // Initialize scheduled cron jobs
     const CronScheduler = require('./utils/cronScheduler');
     CronScheduler.init();
+
+    // Register decoupled event listeners
+    require('./listeners/userListeners');
   });
 
   // Handle graceful shutdown
