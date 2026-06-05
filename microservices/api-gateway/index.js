@@ -40,6 +40,8 @@ app.use(cors());
 app.use(correlationIdMiddleware);
 app.use(versionNegotiator);
 
+const jwt = require('jsonwebtoken');
+
 // Define service locations
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:6001';
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:6002';
@@ -47,17 +49,58 @@ const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http:/
 logger.info(`[API Gateway] Routing users & auth to: ${USER_SERVICE_URL}`);
 logger.info(`[API Gateway] Routing notifications to: ${NOTIFICATION_SERVICE_URL}`);
 
+// Authentication Parser Middleware on Gateway Edge
+const gatewayAuthParser = (req, res, next) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.query.token) {
+    token = req.query.token;
+  }
+
+  if (token) {
+    try {
+      // Check if dual bearer prefix is present
+      if (token.startsWith('Bearer ')) {
+        token = token.slice(7);
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+      logger.info(`[API Gateway Auth] Authenticated user ${decoded.id} at the edge layer.`);
+    } catch (err) {
+      logger.warn(`[API Gateway Auth] Token verification rejected: ${err.message}`);
+    }
+  }
+  next();
+};
+
+app.use(gatewayAuthParser);
+
+// Share standard options with downstreams, injecting offloaded auth context headers
+const proxyOptions = {
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+    if (srcReq.user) {
+      proxyReqOpts.headers['x-user-id'] = srcReq.user.id;
+      proxyReqOpts.headers['x-user-role'] = srcReq.user.role || 'user';
+    }
+    return proxyReqOpts;
+  }
+};
+
 // Route proxies
 app.use('/api/v1/auth', proxy(USER_SERVICE_URL, {
   proxyReqPathResolver: (req) => `/api/v1/auth${req.url}`,
+  ...proxyOptions
 }));
 
 app.use('/api/v1/users', proxy(USER_SERVICE_URL, {
   proxyReqPathResolver: (req) => `/api/v1/users${req.url}`,
+  ...proxyOptions
 }));
 
 app.use('/api/v1/notifications', proxy(NOTIFICATION_SERVICE_URL, {
   proxyReqPathResolver: (req) => `/api/v1/notifications${req.url}`,
+  ...proxyOptions
 }));
 
 // Route handler for synchronous gRPC communication demonstration

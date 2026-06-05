@@ -4,6 +4,16 @@ const AppError = require('../../utils/AppError');
 
 const protect = async (req, res, next) => {
   try {
+    // 0. Check if authentication was offloaded by the API Gateway
+    if (req.headers['x-user-id']) {
+      const gatewayUserId = req.headers['x-user-id'];
+      const currentUser = await User.findById(gatewayUserId);
+      if (currentUser) {
+        req.user = currentUser;
+        return next();
+      }
+    }
+
     let token;
 
     // 1. Get token from authorization header or query param
