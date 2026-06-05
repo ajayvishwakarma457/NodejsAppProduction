@@ -46,6 +46,7 @@
     "busboy": "^1.6.0",
     "concurrently": "^9.2.1",
     "connect-redis": "^6.1.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

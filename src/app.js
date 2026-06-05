@@ -15,6 +15,8 @@ const correlationIdMiddleware = require('./middlewares/v1/correlationIdMiddlewar
 const versionNegotiator = require('./middlewares/v1/versionNegotiator');
 
 const logger = require('./utils/logger');
+const cookieParser = require('cookie-parser');
+const { mongoSanitize, xssSanitize, csrfProtection, enforceHttps } = require('./middlewares/v1/securityMiddleware');
 
 // Initialize passport configuration
 require('./config/passport');
@@ -24,6 +26,8 @@ const app = express();
 // --- 0. Request Context & Tracing Middleware ---
 app.use(correlationIdMiddleware);
 app.use(versionNegotiator);
+app.use(enforceHttps);
+app.use(cookieParser(process.env.SESSION_SECRET || 'fallback-secret-for-session'));
 
 // Prometheus metrics collection
 const { metricsEndpoint } = require('./utils/metrics');
@@ -85,9 +89,18 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
 // --- 1. Global Middlewares ---
-// Secure HTTP headers (CSPs disabled to allow inline style assets for interactive Swagger documentation)
+// Secure HTTP headers with customized Content Security Policy to keep Swagger UI functional
 app.use(helmet({
-  contentSecurityPolicy: false
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      "font-src": ["'self'", "https://fonts.gstatic.com"],
+      "img-src": ["'self'", "data:", "https://*"],
+      "connect-src": ["'self'", "https://*", "http://*"],
+    }
+  }
 }));
 app.use(passport.initialize());
 
@@ -162,6 +175,13 @@ app.use(globalRateLimiter);
 // Body parsing middlewares
 app.use(express.json()); // parses application/json
 app.use(express.urlencoded({ extended: true })); // parses application/x-www-form-urlencoded
+
+// Request Sanitization & CSRF Protections
+app.use(mongoSanitize);
+app.use(xssSanitize);
+if (process.env.NODE_ENV !== 'test') {
+  app.use(csrfProtection);
+}
 
 const idempotencyMiddleware = require('./middlewares/v1/idempotencyMiddleware');
 

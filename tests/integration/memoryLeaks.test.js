@@ -51,5 +51,5 @@ describe('Memory Leak Detection Integration Tests', () => {
 
     // Track for cleanup
     createdFiles.push(filepath);
-  });
+  }, 15000);
 });

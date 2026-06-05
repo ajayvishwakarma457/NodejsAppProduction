@@ -1,0 +1,43 @@
+name: Security Auditing & Hardening Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-audit:
+    name: Dependency Audit & Secret Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Dependency Vulnerability Audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true # Allow build to pass, but report findings
+
+      # Example: Secret Scanning with GitGuardian (replace credentials if integrated)
+      # - name: GitGuardian Scan
+      #   uses: GitGuardian/ggshield-action@v1.23.0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+
+      # Example: TruffleHog OSS Secret Scanner
+      # - name: TruffleHog OSS Secret Scan
+      #   uses: trufflesecurity/trufflehog-source-action@main
+      #   with:
+      #     base: ${{ github.event.repository.default_branch }}
+      #     head: HEAD
