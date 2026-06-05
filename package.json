@@ -42,6 +42,7 @@
     "@opentelemetry/sdk-node": "^0.218.0",
     "@prisma/client": "^6.19.3",
     "amqplib": "^2.0.1",
+    "awilix": "^13.0.0",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.78.0",
     "busboy": "^1.6.0",
