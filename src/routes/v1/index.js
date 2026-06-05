@@ -14,6 +14,7 @@ const uploadRoutes = require('./uploadRoutes');
 const jobRoutes = require('./jobRoutes');
 const sseRoutes = require('./sseRoutes');
 const featureFlagDemoRoutes = require('./featureFlagDemoRoutes');
+const abTestingDemoRoutes = require('./abTestingDemoRoutes');
 
 // Mount routes to specific resource endpoints
 router.use('/auth', authRoutes);
@@ -30,5 +31,6 @@ router.use('/uploads', uploadRoutes);
 router.use('/jobs', jobRoutes);
 router.use('/sse', sseRoutes);
 router.use('/feature-flags', featureFlagDemoRoutes);
+router.use('/ab-test', abTestingDemoRoutes);
 
 module.exports = router;

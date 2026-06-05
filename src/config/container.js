@@ -5,6 +5,7 @@ const MongoUserRepositoryAdapter = require('../adapters/db/mongoUserRepositoryAd
 const diUserService = require('../services/diUserService');
 const hexUserService = require('../services/hexUserService');
 const FeatureFlagService = require('../services/featureFlagService');
+const AbTestingService = require('../services/abTestingService');
 const logger = require('../utils/logger');
 
 // Create the Dependency Injection Container
@@ -32,6 +33,9 @@ container.register({
 
   // Register Feature Flag Service class
   featureFlagService: asClass(FeatureFlagService).singleton(),
+
+  // Register A/B Testing Service class
+  abTestingService: asClass(AbTestingService).singleton(),
 });
 
 module.exports = container;
