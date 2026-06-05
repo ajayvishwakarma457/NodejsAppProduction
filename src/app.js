@@ -12,6 +12,8 @@ const AppError = require('./utils/AppError');
 const { globalRateLimiter } = require('./middlewares/v1/rateLimiter');
 const Redis = require('ioredis');
 
+const logger = require('./utils/logger');
+
 // Initialize passport configuration
 require('./config/passport');
 
@@ -25,7 +27,7 @@ const sessionRedisClient = new Redis({
 });
 
 sessionRedisClient.on('error', (err) => {
-  console.error('Session Redis Client Error:', err);
+  logger.error('Session Redis Client Error:', err);
 });
 
 // --- 1. Global Middlewares ---
@@ -40,7 +42,7 @@ const sessionStore = new RedisStore({
 });
 
 sessionStore.on('error', (err) => {
-  console.error('Session Store Error:', err);
+  logger.error('Session Store Error:', err);
 });
 
 // Configure Session Middleware
@@ -58,13 +60,14 @@ app.use(
     },
   })
 );
+
 app.use((req, res, next) => {
-  console.log('--- DEBUG SESSION ---');
-  console.log('Path:', req.path);
-  console.log('Cookie Header:', req.headers.cookie);
-  console.log('Session ID:', req.sessionID);
-  console.log('Session User:', req.session ? req.session.user : 'No Session Object');
-  console.log('---------------------');
+  logger.debug('--- SESSION DIAGNOSTIC ---', {
+    path: req.path,
+    cookieHeader: req.headers.cookie ? 'present' : 'absent',
+    sessionId: req.sessionID,
+    sessionUserExists: !!(req.session && req.session.user),
+  });
   next();
 });
 // Cross-Origin Resource Sharing (CORS) Configuration

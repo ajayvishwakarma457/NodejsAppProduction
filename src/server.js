@@ -6,6 +6,7 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const connectDB = require('./config/db');
 const app = require('./app');
+const logger = require('./utils/logger');
 
 const PORT = process.env.PORT || 5000;
 
@@ -14,7 +15,7 @@ const startServer = async () => {
   await connectDB();
 
   const server = app.listen(PORT, () => {
-    console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    logger.info(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     
     // Initialize cache Pub/Sub invalidation listener
     const PubSubInvalidator = require('./utils/pubSubInvalidator');
@@ -41,22 +42,22 @@ const startServer = async () => {
 
   // Handle graceful shutdown
   const gracefulShutdown = async () => {
-    console.log('Shutting down server gracefully...');
+    logger.info('Shutting down server gracefully...');
     try {
       const emailWorker = require('./workers/emailWorker');
       await emailWorker.close();
-      console.log('BullMQ emailWorker closed.');
+      logger.info('BullMQ emailWorker closed.');
     } catch (err) {
-      console.error('Error closing BullMQ worker:', err.message);
+      logger.error(`Error closing BullMQ worker: ${err.message}`);
     }
     try {
       const CronScheduler = require('./utils/cronScheduler');
       CronScheduler.stop();
     } catch (err) {
-      console.error('Error stopping cron scheduler:', err.message);
+      logger.error(`Error stopping cron scheduler: ${err.message}`);
     }
     server.close(() => {
-      console.log('HTTP server closed.');
+      logger.info('HTTP server closed.');
       process.exit(0);
     });
   };
