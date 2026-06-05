@@ -127,7 +127,7 @@ This document serves as the core context for building our Node.js application, d
 
 ### 11. Logging & Error Handling
 - [x] Winston — structured JSON logging (implemented custom logger and transport files)
-- Morgan — HTTP request logging
+- [x] Morgan — HTTP request logging (integrated Morgan stream with Winston)
 - Log levels: debug, info, warn, error
 - Centralized error handling middleware
 - Correlation IDs for request tracing
