@@ -40,6 +40,20 @@ const startService = () => {
       const instanceUrl = `http://127.0.0.1:${PORT}`;
       const stopHeartbeat = serviceRegistry.startHeartbeat('notification-service', instanceUrl);
       
+      // Initialize RabbitMQ Consumer for Security Audits
+      const rabbitmqConsumer = require('../../src/messaging/rabbitmqConsumer');
+      rabbitmqConsumer.consume(
+        'security_exchange',
+        'direct',
+        'audit_log_queue',
+        'user.register',
+        async (content, routingKey) => {
+          logger.info(`[Notification Service RMQ] Successfully processed security event [${routingKey}]: ${JSON.stringify(content)}`);
+        }
+      ).catch((err) => {
+        logger.warn(`[Notification Service RMQ] RabbitMQ consumer connection deferred: ${err.message}`);
+      });
+
       const shutdown = async () => {
         logger.info('[Notification Service] Shutting down service...');
         stopHeartbeat();

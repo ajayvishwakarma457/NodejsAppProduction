@@ -24,11 +24,26 @@ appEventEmitter.on('user:registered', async (user) => {
   }
 });
 
-// Listener 2: Security & Audit Logging
-appEventEmitter.on('user:registered', (user) => {
-  console.log(
-    `[Event-Listener] [Audit Log] SECURITY: User registration registered for ID: ${
-      user.id || user._id
-    } at ${new Date().toISOString()}`
-  );
+// Listener 2: Security & Audit Logging via RabbitMQ
+const rabbitmqProducer = require('../messaging/rabbitmqProducer');
+
+appEventEmitter.on('user:registered', async (user) => {
+  const userId = (user.id || user._id || '').toString();
+  console.log(`[Event-Listener] [Audit Log] SECURITY: User registration registered for ID: ${userId} at ${new Date().toISOString()}`);
+  
+  try {
+    await rabbitmqProducer.publish(
+      'security_exchange',
+      'direct',
+      'user.register',
+      {
+        userId,
+        name: user.name,
+        email: user.email,
+        action: 'USER_REGISTERED',
+      }
+    );
+  } catch (err) {
+    console.error(`[Event-Listener] Failed to publish registration audit log to RabbitMQ: ${err.message}`);
+  }
 });

@@ -151,8 +151,8 @@ This document serves as the core context for building our Node.js application, d
 - [x] Circuit breaker (opossum library)
 
 ### 2. Message Queues & Event Streaming
-- RabbitMQ — exchanges, queues, routing keys
-- Apache Kafka — partitions, consumer groups, offsets
+- [x] RabbitMQ — exchanges, queues, routing keys
+- [ ] Apache Kafka — partitions, consumer groups, offsets
 - NATS — lightweight pub/sub
 - Event sourcing and CQRS patterns
 
