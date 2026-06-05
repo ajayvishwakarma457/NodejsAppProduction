@@ -17,6 +17,10 @@ const logger = require('./utils/logger');
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
+  // Retrieve secret properties dynamically from AWS Secrets Manager or HashiCorp Vault
+  const loadSecrets = require('./config/secrets');
+  await loadSecrets();
+
   // Connect to Database
   await connectDB();
 
