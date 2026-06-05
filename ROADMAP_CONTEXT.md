@@ -123,7 +123,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] Integration/API testing with Supertest
 - [x] Mocking: jest.mock, sinon (implemented mock database calls & token verification)
 - [x] Test coverage reporting (implemented Jest coverage script and reports)
-- E2E testing with Playwright or Cypress
+- [x] E2E testing with Playwright (implemented automated home page test suite)
 
 ### 11. Logging & Error Handling
 - Winston — structured JSON logging
