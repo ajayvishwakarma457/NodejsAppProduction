@@ -133,7 +133,7 @@ This document serves as the core context for building our Node.js application, d
 
 ### 12. API Design Best Practices
 - [x] Pagination: cursor-based vs offset-based (refactored getUsers endpoint with dual modes)
-- Filtering, sorting, field selection
+- [x] Filtering, sorting, field selection (implemented query parsers in userController)
 - OpenAPI / Swagger documentation
 - Idempotency keys for safe retries
 - API versioning strategies

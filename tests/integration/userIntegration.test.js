@@ -47,6 +47,7 @@ describe('User API Integration Tests', () => {
       });
       User.find.mockReturnValue({
         sort: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
         lean: jest.fn().mockResolvedValue([
@@ -77,6 +78,7 @@ describe('User API Integration Tests', () => {
       });
       User.find.mockReturnValue({
         sort: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
         lean: jest.fn().mockResolvedValue([
           { _id: 'userA', name: 'User A', email: 'usera@example.com' },

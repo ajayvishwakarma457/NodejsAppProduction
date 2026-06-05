@@ -5,31 +5,44 @@ const PubSubInvalidator = require('../../utils/pubSubInvalidator');
 const localCache = require('../../utils/localCache');
 
 const UserController = {
-  // GET /api/v1/users (with dynamic cursor-based and offset-based pagination)
+  // GET /api/v1/users (with dynamic filtering, sorting, field selection, and pagination)
   getUsers: async (req, res, next) => {
     try {
-      const { name, page, limit, cursor, type } = req.query;
-      let query = {};
+      // 1. Filtering
+      const queryObj = { ...req.query };
+      const excludedFields = ['page', 'sort', 'limit', 'fields', 'cursor', 'type'];
+      excludedFields.forEach((el) => delete queryObj[el]);
 
-      if (name) {
-        // Case-insensitive regex search
-        query.name = { $regex: name, $options: 'i' };
+      // Advanced filtering for Mongo operators (gte, gt, lte, lt)
+      let queryStr = JSON.stringify(queryObj);
+      queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+      let filterQuery = JSON.parse(queryStr);
+
+      if (filterQuery.name) {
+        // Support case-insensitive name filter regex
+        filterQuery.name = { $regex: filterQuery.name, $options: 'i' };
       }
 
-      const parsedLimit = Math.min(parseInt(limit, 10) || 10, 100);
+      const parsedLimit = Math.min(parseInt(req.query.limit, 10) || 10, 100);
 
       // --- 1. Cursor-Based Pagination ---
-      if (type === 'cursor' || cursor) {
-        let cursorQuery = { ...query };
-        if (cursor) {
-          cursorQuery._id = { $gt: cursor }; // Sort ascending by _id
+      if (req.query.type === 'cursor' || req.query.cursor) {
+        let cursorQuery = { ...filterQuery };
+        if (req.query.cursor) {
+          cursorQuery._id = { $gt: req.query.cursor }; // Sort ascending by _id
         }
 
-        // Query limit + 1 items to determine if a next page exists without doing a full count query
-        const users = await User.find(cursorQuery)
-          .sort({ _id: 1 })
-          .limit(parsedLimit + 1)
-          .lean();
+        let dbQuery = User.find(cursorQuery).sort({ _id: 1 });
+
+        // Field Selection
+        if (req.query.fields) {
+          const fields = req.query.fields.split(',').join(' ');
+          dbQuery = dbQuery.select(fields);
+        } else {
+          dbQuery = dbQuery.select('-__v'); // Exclude Mongo internal version flags by default
+        }
+
+        const users = await dbQuery.limit(parsedLimit + 1).lean();
 
         const hasNextPage = users.length > parsedLimit;
         if (hasNextPage) {
@@ -52,16 +65,32 @@ const UserController = {
       }
 
       // --- 2. Offset-Based Pagination (Default) ---
-      const parsedPage = Math.max(parseInt(page, 10) || 1, 1);
+      const parsedPage = Math.max(parseInt(req.query.page, 10) || 1, 1);
       const skip = (parsedPage - 1) * parsedLimit;
 
+      let dbQuery = User.find(filterQuery);
+
+      // Sorting
+      if (req.query.sort) {
+        const sortBy = req.query.sort.split(',').join(' ');
+        dbQuery = dbQuery.sort(sortBy);
+      } else {
+        dbQuery = dbQuery.sort({ _id: 1 }); // Default fallback sorting
+      }
+
+      // Field Selection
+      if (req.query.fields) {
+        const fields = req.query.fields.split(',').join(' ');
+        dbQuery = dbQuery.select(fields);
+      } else {
+        dbQuery = dbQuery.select('-__v'); // Exclude Mongo internal version flags by default
+      }
+
+      dbQuery = dbQuery.skip(skip).limit(parsedLimit);
+
       const [users, totalCount] = await Promise.all([
-        User.find(query)
-          .sort({ _id: 1 })
-          .skip(skip)
-          .limit(parsedLimit)
-          .lean(),
-        User.countDocuments(query),
+        dbQuery.lean(),
+        User.countDocuments(filterQuery),
       ]);
 
       const totalPages = Math.ceil(totalCount / parsedLimit);
