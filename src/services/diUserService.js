@@ -5,19 +5,19 @@
  * Constructor parameters are automatically resolved and injected by Awilix.
  */
 class DiUserService {
-  constructor({ userModel, logger }) {
-    this.userModel = userModel;
+  constructor({ userRepository, logger }) {
+    this.userRepository = userRepository;
     this.logger = logger;
   }
 
   async getAllUsers() {
-    this.logger.info('[DI Service] Retrieving all users from database');
-    return this.userModel.find({});
+    this.logger.info('[DI Service] Retrieving all users from repository');
+    return this.userRepository.findAll();
   }
 
   async getUserById(id) {
     this.logger.info(`[DI Service] Retrieving user details for ID: ${id}`);
-    const user = await this.userModel.findById(id);
+    const user = await this.userRepository.findById(id);
     if (!user) {
       throw new Error(`User not found with ID ${id}`);
     }
@@ -26,12 +26,11 @@ class DiUserService {
 
   async createUser(userData) {
     this.logger.info(`[DI Service] Creating new user record: ${userData.email}`);
-    // Check if user already exists
-    const existing = await this.userModel.findOne({ email: userData.email });
+    const existing = await this.userRepository.findByEmail(userData.email);
     if (existing) {
       throw new Error('A user with this email address already exists');
     }
-    return this.userModel.create(userData);
+    return this.userRepository.create(userData);
   }
 }
 

@@ -1,5 +1,6 @@
 const { createContainer, asClass, asValue } = require('awilix');
 const userModel = require('../models/userModel');
+const UserRepository = require('../repositories/userRepository');
 const diUserService = require('../services/diUserService');
 const logger = require('../utils/logger');
 
@@ -13,6 +14,9 @@ container.register({
 
   // Register Mongoose User Model as a static value
   userModel: asValue(userModel),
+
+  // Register User Repository as a class (Singleton lifetime)
+  userRepository: asClass(UserRepository).singleton(),
 
   // Register User Service as a class (Singleton lifetime)
   diUserService: asClass(diUserService).singleton(),
