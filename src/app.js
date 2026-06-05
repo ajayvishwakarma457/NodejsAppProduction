@@ -116,8 +116,13 @@ app.use(globalRateLimiter);
 app.use(express.json()); // parses application/json
 app.use(express.urlencoded({ extended: true })); // parses application/x-www-form-urlencoded
 
+const idempotencyMiddleware = require('./middlewares/v1/idempotencyMiddleware');
+
 // Custom logging middleware
 app.use(loggerMiddleware);
+
+// Idempotency checks for mutating request retries
+app.use(idempotencyMiddleware);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
