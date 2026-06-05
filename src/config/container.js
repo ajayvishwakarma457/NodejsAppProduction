@@ -1,7 +1,9 @@
 const { createContainer, asClass, asValue } = require('awilix');
 const userModel = require('../models/userModel');
 const UserRepository = require('../repositories/userRepository');
+const MongoUserRepositoryAdapter = require('../adapters/db/mongoUserRepositoryAdapter');
 const diUserService = require('../services/diUserService');
+const hexUserService = require('../services/hexUserService');
 const logger = require('../utils/logger');
 
 // Create the Dependency Injection Container
@@ -20,6 +22,12 @@ container.register({
 
   // Register User Service as a class (Singleton lifetime)
   diUserService: asClass(diUserService).singleton(),
+
+  // Register Hexagonal Outbound Adapter class to satisfy the Outbound Port contract
+  userRepositoryPort: asClass(MongoUserRepositoryAdapter).singleton(),
+
+  // Register Hexagonal Application Service class
+  hexUserService: asClass(hexUserService).singleton(),
 });
 
 module.exports = container;

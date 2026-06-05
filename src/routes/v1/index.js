@@ -4,6 +4,7 @@ const userRoutes = require('./userRoutes');
 const userRoutesEv = require('./userRoutesEv');
 const cqrsUserRoutes = require('./cqrsUserRoutes');
 const diUserRoutes = require('./diUserRoutes');
+const hexUserRoutes = require('./hexUserRoutes');
 const grpcGatewayRoutes = require('./grpcGatewayRoutes');
 const authRoutes = require('./authRoutes');
 const apiKeyRoutes = require('./apiKeyRoutes');
@@ -20,6 +21,7 @@ router.use('/users', userRoutes);      // Zod version
 router.use('/ev-users', userRoutesEv);  // Express-validator version
 router.use('/cqrs-users', cqrsUserRoutes); // CQRS / Event-Sourced version
 router.use('/di-users', diUserRoutes);     // Dependency Injection version
+router.use('/hex-users', hexUserRoutes);   // Hexagonal (Ports & Adapters) version
 router.use('/grpc-users', grpcGatewayRoutes); // REST-gRPC Gateway proxy
 router.use('/transactions', transactionRoutes);
 router.use('/redis-demo', redisDemoRoutes);
