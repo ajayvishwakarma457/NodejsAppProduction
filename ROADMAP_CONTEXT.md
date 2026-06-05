@@ -114,8 +114,8 @@ This document serves as the core context for building our Node.js application, d
 - [x] Event-driven patterns with EventEmitter
 
 ### 9. WebSockets & Real-time
-- Socket.io — rooms, namespaces, broadcasting
-- ws — lightweight alternative
+- [x] Socket.io — rooms, namespaces, broadcasting
+- [ ] ws — lightweight alternative
 - Server-Sent Events (SSE) for one-way streaming
 
 ### 10. Testing

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Chat Dashboard | production-roadmap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      height: 650px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Auth screen modal fallback overlay */
+    #auth-screen {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      border-radius: 24px;
+      transition: all 0.3s ease;
+    }
+
+    #auth-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 450px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .auth-card h2 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .auth-card p {
+      color: var(--text-muted);
+      margin-bottom: 25px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 20px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Sidebar controls */
+    .sidebar {
+      width: 300px;
+      border-right: 1px solid var(--glass-border);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar-header {
+      margin-bottom: 30px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse-animation 1.5s infinite;
+    }
+
+    @keyframes pulse-animation {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+
+    .sidebar-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .sidebar-section {
+      margin-bottom: 25px;
+    }
+
+    .sidebar-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-header {
+      height: 70px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-title-info h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .chat-title-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .messages-container {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* Message Bubbles */
+    .message-wrapper {
+      display: flex;
+      flex-direction: column;
+      max-width: 70%;
+    }
+
+    .message-wrapper.me {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .message-wrapper.others {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .message-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .message-bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .message-wrapper.me .message-bubble {
+      background: var(--primary);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message-wrapper.others .message-bubble {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+
+    .sys-msg {
+      align-self: center;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: var(--text-muted);
+    }
+
+    .typing-indicator {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 0 24px 10px;
+      font-style: italic;
+      min-height: 25px;
+    }
+
+    /* Input area */
+    .input-form {
+      padding: 20px 24px;
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      gap: 12px;
+    }
+
+    .input-form input {
+      margin-bottom: 0;
+      flex: 1;
+    }
+
+    .input-form button {
+      width: auto;
+      padding: 0 24px;
+    }
+
+    .user-info {
+      font-size: 13px;
+      border-top: 1px solid var(--glass-border);
+      padding-top: 15px;
+    }
+
+    .user-info p span {
+      color: var(--primary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Auth Shield Overlay -->
+    <div id="auth-screen">
+      <div class="auth-card">
+        <h2>Enter JWT Authentication</h2>
+        <p>This WebSocket endpoint enforces server-side connection handshake validations. Enter your bearer token below to establish a real-time stream.</p>
+        <input type="text" id="jwt-input" placeholder="Paste eyJhbGciOiJIUzI1NiIsInR5..." required>
+        <button id="auth-btn">Authenticate Connection</button>
+      </div>
+    </div>
+
+    <!-- Sidebar controls -->
+    <div class="sidebar">
+      <div>
+        <div class="sidebar-header">
+          <div class="logo-container">
+            <div class="pulse"></div>
+            ROADMAP CHAT
+          </div>
+          <p class="sidebar-desc">Real-time room event dispatcher</p>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Namespace</div>
+          <select id="namespace-select">
+            <option value="/chat">/chat (Standard Chat)</option>
+          </select>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Join Room</div>
+          <select id="room-select" disabled>
+            <option value="room:tech">💻 tech-talk</option>
+            <option value="room:general">💬 general</option>
+            <option value="room:random">🎲 random</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="user-info" id="user-display" style="display: none;">
+        <p>User: <span id="username-tag">Unauthenticated</span></p>
+        <p style="font-size: 11px; color: var(--text-muted);" id="user-email-tag"></p>
+      </div>
+    </div>
+
+    <!-- Chat Board -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <div class="chat-title-info">
+          <h3 id="current-room-title">No Room Joined</h3>
+          <p id="current-room-desc">Select a room from the sidebar menu to start broadcasting</p>
+        </div>
+      </div>
+
+      <!-- Messages body -->
+      <div class="messages-container" id="messages-box">
+        <div class="sys-msg">Establish authenticated connection to enter rooms.</div>
+      </div>
+
+      <!-- Typing notifier -->
+      <div class="typing-indicator" id="typing-box"></div>
+
+      <!-- Bottom entry -->
+      <form class="input-form" id="chat-form">
+        <input type="text" id="msg-input" placeholder="Type a message..." autocomplete="off" disabled>
+        <button type="submit" id="send-btn" disabled>Send</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Socket.io connection logic -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let socket = null;
+    let currentRoom = null;
+    let typingTimeout = null;
+    let isCurrentlyTyping = false;
+
+    const authScreen = document.getElementById('auth-screen');
+    const jwtInput = document.getElementById('jwt-input');
+    const authBtn = document.getElementById('auth-btn');
+
+    const namespaceSelect = document.getElementById('namespace-select');
+    const roomSelect = document.getElementById('room-select');
+    const userDisplay = document.getElementById('user-display');
+    const usernameTag = document.getElementById('username-tag');
+    const userEmailTag = document.getElementById('user-email-tag');
+
+    const currentRoomTitle = document.getElementById('current-room-title');
+    const currentRoomDesc = document.getElementById('current-room-desc');
+    const messagesBox = document.getElementById('messages-box');
+    const typingBox = document.getElementById('typing-box');
+    const chatForm = document.getElementById('chat-form');
+    const msgInput = document.getElementById('msg-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    // 1. Establish Authentication & Socket Connection
+    authBtn.addEventListener('click', () => {
+      const token = jwtInput.value.trim();
+      if (!token) {
+        alert('Please paste a valid JWT access token.');
+        return;
+      }
+
+      // Check if Socket.io client script loaded
+      if (typeof io === 'undefined') {
+        alert('Socket.io library failed to load from server. Verify server is running.');
+        return;
+      }
+
+      // Connect to the /chat namespace passing token in auth payload
+      socket = io('/chat', {
+        auth: {
+          token: token
+        }
+      });
+
+      socket.on('connect', () => {
+        console.log('Successfully connected to WebSocket.');
+        
+        // Retrieve client user details attached during middleware handshake
+        // (Socket.io payload parsing or wait for payload echo, or use decoding client side)
+        // Since we attached user metadata to socket server instance, we can fetch username
+        // We'll read the parsed username from the server or simply decode client side.
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          usernameTag.textContent = payload.name || 'Roadmap User';
+          userEmailTag.textContent = payload.email || 'authenticated';
+        } catch {
+          usernameTag.textContent = 'Authenticated User';
+        }
+
+        userDisplay.style.display = 'block';
+        authScreen.classList.add('hidden');
+        roomSelect.removeAttribute('disabled');
+        msgInput.removeAttribute('disabled');
+        sendBtn.removeAttribute('disabled');
+        
+        messagesBox.innerHTML = '<div class="sys-msg">Connected to /chat namespace. Join a room!</div>';
+        joinRoom(roomSelect.value);
+      });
+
+      socket.on('connect_error', (err) => {
+        alert(`WebSocket Connection Failed: ${err.message}`);
+        socket.disconnect();
+      });
+
+      // System message listener
+      socket.on('sys-message', (data) => {
+        const sysDiv = document.createElement('div');
+        sysDiv.className = 'sys-msg';
+        sysDiv.textContent = `${data.text}`;
+        messagesBox.appendChild(sysDiv);
+        scrollToBottom();
+      });
+
+      // General message listener (broadcasting)
+      socket.on('message', (data) => {
+        const msgWrapper = document.createElement('div');
+        // Parse if current sender is me or other
+        const isMe = data.user === usernameTag.textContent;
+        msgWrapper.className = `message-wrapper ${isMe ? 'me' : 'others'}`;
+
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'message-meta';
+        const formattedTime = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        metaDiv.textContent = `${data.user} • ${formattedTime}`;
+
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'message-bubble';
+        bubbleDiv.textContent = data.text;
+
+        msgWrapper.appendChild(metaDiv);
+        msgWrapper.appendChild(bubbleDiv);
+        messagesBox.appendChild(msgWrapper);
+        scrollToBottom();
+      });
+
+      // Typing indicator listener
+      socket.on('user-typing', (data) => {
+        if (data.isTyping) {
+          typingBox.textContent = `${data.user} is typing...`;
+        } else {
+          typingBox.textContent = '';
+        }
+      });
+    });
+
+    // 2. Room management
+    roomSelect.addEventListener('change', () => {
+      joinRoom(roomSelect.value);
+    });
+
+    function joinRoom(roomName) {
+      if (!socket) return;
+      currentRoom = roomName;
+      socket.emit('join-room', roomName);
+
+      const roomLabels = {
+        'room:tech': '💻 tech-talk',
+        'room:general': '💬 general',
+        'room:random': '🎲 random'
+      };
+
+      currentRoomTitle.textContent = roomLabels[roomName];
+      currentRoomDesc.textContent = `Real-time broadcast stream for ${roomLabels[roomName]}`;
+      messagesBox.innerHTML = `<div class="sys-msg">You joined room ${roomLabels[roomName]}.</div>`;
+    }
+
+    // 3. Message dispatching
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = msgInput.value.trim();
+      if (!text || !socket) return;
+
+      socket.emit('send-message', text);
+      msgInput.value = '';
+      
+      // Stop typing status instantly
+      stoppedTyping();
+    });
+
+    // 4. Typing indicators hooks
+    msgInput.addEventListener('input', () => {
+      if (!socket || !currentRoom) return;
+
+      if (!isCurrentlyTyping) {
+        isCurrentlyTyping = true;
+        socket.emit('typing', true);
+      }
+
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(stoppedTyping, 2000); // clear typing after 2 seconds inactivity
+    });
+
+    function stoppedTyping() {
+      if (isCurrentlyTyping && socket) {
+        isCurrentlyTyping = false;
+        socket.emit('typing', false);
+      }
+    }
+
+    function scrollToBottom() {
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>

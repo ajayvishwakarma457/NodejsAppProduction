@@ -31,6 +31,10 @@ const startServer = async () => {
     require('./listeners/userListeners');
   });
 
+  // Initialize Socket.io real-time server
+  const socketService = require('./utils/socketService');
+  socketService.init(server);
+
   // Handle graceful shutdown
   const gracefulShutdown = async () => {
     console.log('Shutting down server gracefully...');
