@@ -126,7 +126,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] E2E testing with Playwright (implemented automated home page test suite)
 
 ### 11. Logging & Error Handling
-- Winston — structured JSON logging
+- [x] Winston — structured JSON logging (implemented custom logger and transport files)
 - Morgan — HTTP request logging
 - Log levels: debug, info, warn, error
 - Centralized error handling middleware

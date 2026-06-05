@@ -1,4 +1,7 @@
+const logger = require('../../utils/logger');
+
 const sendErrorDev = (err, res) => {
+  logger.error(err);
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -10,13 +13,14 @@ const sendErrorDev = (err, res) => {
 const sendErrorProd = (err, res) => {
   // Operational, trusted error: send message to client
   if (err.isOperational) {
+    logger.warn(`Operational Warning: ${err.message}`, { statusCode: err.statusCode });
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message
     });
   } else {
     // Programming or other unknown error: don't leak details
-    console.error('ERROR 💥:', err);
+    logger.error('Unhandled System Exception:', err);
     res.status(500).json({
       status: 'error',
       message: 'Something went very wrong!'

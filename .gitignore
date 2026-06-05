@@ -6,5 +6,6 @@ node_modules
 coverage/
 scratch/
 public/uploads/
+logs/
 test-results/
 playwright-report/
