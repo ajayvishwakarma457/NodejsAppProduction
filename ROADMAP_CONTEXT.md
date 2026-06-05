@@ -120,7 +120,7 @@ This document serves as the core context for building our Node.js application, d
 
 ### 10. Testing
 - [x] Unit testing with Jest
-- [ ] Integration/API testing with Supertest
+- [x] Integration/API testing with Supertest
 - [x] Mocking: jest.mock, sinon (implemented mock database calls & token verification)
 - [x] Test coverage reporting (implemented Jest coverage script and reports)
 - E2E testing with Playwright or Cypress

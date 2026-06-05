@@ -2,6 +2,9 @@ module.exports = {
   // Use Node environment for testing backend services
   testEnvironment: 'node',
 
+  // Run files after testing framework is installed
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+
   // Automatically clear mock calls, instances, contexts and results before every test
   clearMocks: true,
 
