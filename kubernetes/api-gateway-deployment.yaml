@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-api-gateway
+  namespace: default
+  labels:
+    app: nodejs-api-gateway
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: nodejs-api-gateway
+  template:
+    metadata:
+      labels:
+        app: nodejs-api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: nodejs-api-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6000
+              name: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          envFrom:
+            - configMapRef:
+                name: nodejs-app-config
+            - secretRef:
+                name: nodejs-app-secrets
+          env:
+            - name: PORT
+              value: "6000"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 6000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 6000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-api-gateway-service
+  namespace: default
+  labels:
+    app: nodejs-api-gateway
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6000
+      targetPort: 6000
+      protocol: TCP
+      name: http
+  selector:
+    app: nodejs-api-gateway
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nodejs-api-gateway-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nodejs-api-gateway
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
