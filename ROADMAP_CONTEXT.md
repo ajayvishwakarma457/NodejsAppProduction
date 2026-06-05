@@ -129,7 +129,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] Winston — structured JSON logging (implemented custom logger and transport files)
 - [x] Morgan — HTTP request logging (integrated Morgan stream with Winston)
 - [x] Centralized error handling middleware (implemented database and JWT error translation maps)
-- Correlation IDs for request tracing
+- [x] Correlation IDs for request tracing (implemented AsyncLocalStorage request tracker)
 
 ### 12. API Design Best Practices
 - Pagination: cursor-based vs offset-based

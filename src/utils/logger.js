@@ -1,5 +1,6 @@
 const winston = require('winston');
 const path = require('path');
+const asyncLocalStorage = require('./tracer');
 
 // Define log levels (following standard npm levels)
 const levels = {
@@ -29,13 +30,23 @@ const colors = {
 // Link colors to Winston
 winston.addColors(colors);
 
+// Winston format modifier: dynamically inject correlationId from ALS context if present
+const injectCorrelationId = winston.format((info) => {
+  const store = asyncLocalStorage.getStore();
+  if (store && store.correlationId) {
+    info.correlationId = store.correlationId;
+  }
+  return info;
+});
+
 // Define log format for development (human-readable, colorized)
 const devFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format.colorize({ all: true }),
-  winston.format.printf(
-    (info) => `[${info.timestamp}] [${info.level}]: ${info.message}${info.stack ? `\nStack: ${info.stack}` : ''}`
-  )
+  winston.format.printf((info) => {
+    const cidStr = info.correlationId ? ` [CID: ${info.correlationId}]` : '';
+    return `[${info.timestamp}] [${info.level}]${cidStr}: ${info.message}${info.stack ? `\nStack: ${info.stack}` : ''}`;
+  })
 );
 
 // Define log format for production (structured JSON)
@@ -47,6 +58,7 @@ const prodFormat = winston.format.combine(
 
 // Choose format based on node environment
 const format = winston.format.combine(
+  injectCorrelationId(), // run correlation ID injection before rendering formats
   process.env.NODE_ENV === 'production' ? prodFormat : devFormat
 );
 
@@ -59,13 +71,19 @@ const transports = [
   new winston.transports.File({
     filename: path.join(__dirname, '../../logs/error.log'),
     level: 'error',
-    format: prodFormat, // always log to files as JSON for query engines
+    format: winston.format.combine(
+      injectCorrelationId(),
+      prodFormat // always log to files as JSON for query engines
+    ),
   }),
 
   // Save all logs to a combined file
   new winston.transports.File({
     filename: path.join(__dirname, '../../logs/combined.log'),
-    format: prodFormat,
+    format: winston.format.combine(
+      injectCorrelationId(),
+      prodFormat
+    ),
   }),
 ];
 

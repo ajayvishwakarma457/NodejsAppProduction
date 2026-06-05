@@ -11,6 +11,7 @@ const v1Router = require('./routes/v1');
 const AppError = require('./utils/AppError');
 const { globalRateLimiter } = require('./middlewares/v1/rateLimiter');
 const Redis = require('ioredis');
+const correlationIdMiddleware = require('./middlewares/v1/correlationIdMiddleware');
 
 const logger = require('./utils/logger');
 
@@ -18,6 +19,9 @@ const logger = require('./utils/logger');
 require('./config/passport');
 
 const app = express();
+
+// --- 0. Request Context & Tracing Middleware ---
+app.use(correlationIdMiddleware);
 
 // Initialize separate Redis client for session store
 const sessionRedisClient = new Redis({
