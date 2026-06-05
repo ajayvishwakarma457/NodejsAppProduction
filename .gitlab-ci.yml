@@ -1,0 +1,54 @@
+stages:
+  - test
+  - build
+  - validate
+
+variables:
+  MONGODB_URI: "mongodb://mongodb:27017/test_db"
+  REDIS_HOST: "redis"
+  REDIS_PORT: 6379
+  JWT_SECRET: "test_jwt_secret"
+  SESSION_SECRET: "test_session_secret"
+  NODE_ENV: "test"
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
+    - node_modules/
+
+test-job:
+  stage: test
+  image: node:18-alpine
+  services:
+    - name: mongo:6.0
+      alias: mongodb
+    - name: redis:7-alpine
+      alias: redis
+  before_script:
+    - apk add --no-cache python3 make g++
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - npm test
+
+docker-build-job:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - docker build -t nodejs-monolith-app:latest .
+    - docker build -f microservices/api-gateway/Dockerfile -t nodejs-api-gateway:latest .
+    - docker build -f microservices/user-service/Dockerfile -t nodejs-user-service:latest .
+    - docker build -f microservices/notification-service/Dockerfile -t nodejs-notification-service:latest .
+
+kubernetes-validate-job:
+  stage: validate
+  image: line/kubectl:latest
+  script:
+    - kubectl apply --dry-run=client --validate=false -f kubernetes/

@@ -1,0 +1,53 @@
+version: 2.1
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/node:18.16.0
+      - image: mongo:6.0
+      - image: redis:7.0-alpine
+    environment:
+      NODE_ENV: test
+      MONGODB_URI: mongodb://localhost:27017/test_db
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      JWT_SECRET: test_jwt_secret
+      SESSION_SECRET: test_session_secret
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies-
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+      - run:
+          name: Run Unit & Integration Tests
+          command: npm test
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Verify Docker Image Builds
+          command: |
+            docker build -t nodejs-monolith-app:latest .
+            docker build -f microservices/api-gateway/Dockerfile -t nodejs-api-gateway:latest .
+            docker build -f microservices/user-service/Dockerfile -t nodejs-user-service:latest .
+            docker build -f microservices/notification-service/Dockerfile -t nodejs-notification-service:latest .
+      - run:
+          name: Validate Kubernetes Manifests
+          command: |
+            # Download kubectl
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            ./kubectl apply --dry-run=client --validate=false -f kubernetes/
+
+workflows:
+  version: 2
+  commit-workflow:
+    jobs:
+      - build-and-test
