@@ -36,6 +36,12 @@ const startServer = async () => {
 
     // Register decoupled event listeners
     require('./listeners/userListeners');
+
+    // Start synthetic uptime prober if enabled
+    if (process.env.SYNTHETIC_PROBER_ENABLED === 'true') {
+      const syntheticProber = require('./utils/syntheticProber');
+      syntheticProber.start();
+    }
   });
 
   // Initialize Socket.io real-time server
@@ -49,6 +55,12 @@ const startServer = async () => {
   // Handle graceful shutdown
   const gracefulShutdown = async () => {
     logger.info('Shutting down server gracefully...');
+    try {
+      const syntheticProber = require('./utils/syntheticProber');
+      syntheticProber.stop();
+    } catch (err) {
+      logger.error(`Error stopping synthetic prober: ${err.message}`);
+    }
     try {
       const emailWorker = require('./workers/emailWorker');
       await emailWorker.close();

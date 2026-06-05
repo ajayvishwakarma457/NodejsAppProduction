@@ -21,6 +21,9 @@ jest.mock('mongoose', () => {
     ...actualMongoose,
     connect: jest.fn().mockResolvedValue(true),
     startSession: jest.fn().mockResolvedValue(mockSession),
+    get connection() {
+      return actualMongoose.connection;
+    },
   };
 });
 

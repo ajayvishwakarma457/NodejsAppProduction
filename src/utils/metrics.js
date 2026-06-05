@@ -32,11 +32,26 @@ const dbOperationsTotal = new promClient.Counter({
   labelNames: ['operation', 'collection', 'status'], // operation: find, save, update; status: success, error
 });
 
+const syntheticProbeSuccess = new promClient.Gauge({
+  name: 'synthetic_probe_success',
+  help: 'Uptime probe result (1 = success, 0 = failure)',
+  labelNames: ['target', 'status_code'],
+});
+
+const syntheticProbeDurationSeconds = new promClient.Histogram({
+  name: 'synthetic_probe_duration_seconds',
+  help: 'Duration of the synthetic uptime probe check in seconds',
+  labelNames: ['target'],
+  buckets: [0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+});
+
 // Register custom metrics
 register.registerMetric(httpRequestsTotal);
 register.registerMetric(httpRequestDurationSeconds);
 register.registerMetric(activeConnections);
 register.registerMetric(dbOperationsTotal);
+register.registerMetric(syntheticProbeSuccess);
+register.registerMetric(syntheticProbeDurationSeconds);
 
 // Middleware/Endpoint handlers
 const metricsEndpoint = async (req, res) => {
@@ -54,5 +69,7 @@ module.exports = {
   httpRequestDurationSeconds,
   activeConnections,
   dbOperationsTotal,
+  syntheticProbeSuccess,
+  syntheticProbeDurationSeconds,
   metricsEndpoint,
 };

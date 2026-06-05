@@ -1,5 +1,6 @@
 const mockRedis = jest.fn().mockImplementation(() => {
   return {
+    status: 'ready',
     on: jest.fn(),
     call: jest.fn().mockImplementation((command, ...args) => {
       const cmd = String(command).toLowerCase();

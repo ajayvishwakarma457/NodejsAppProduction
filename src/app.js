@@ -31,6 +31,44 @@ const metricsMiddleware = require('./middlewares/v1/metricsMiddleware');
 app.use(metricsMiddleware);
 app.get('/metrics', metricsEndpoint);
 
+// Uptime health check endpoint for synthetic monitoring and load balancers
+const mongoose = require('mongoose');
+app.get('/health', async (req, res) => {
+  const mongoStatus = mongoose.connection.readyState;
+  const mongoStates = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+  
+  const redisStatus = sessionRedisClient ? sessionRedisClient.status : 'disconnected';
+  const isHealthy = mongoStatus === 1 && redisStatus === 'ready';
+
+  const statusPayload = {
+    status: isHealthy ? 'healthy' : 'unhealthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    services: {
+      database: {
+        status: mongoStates[mongoStatus] || 'unknown',
+        healthy: mongoStatus === 1,
+      },
+      cache: {
+        status: redisStatus,
+        healthy: redisStatus === 'ready',
+      },
+    },
+    system: {
+      memory: {
+        rss: `${Math.round(process.memoryUsage().rss / 1024 / 1024 * 100) / 100} MB`,
+        heapUsed: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100} MB`,
+      },
+    },
+  };
+
+  if (isHealthy) {
+    return res.status(200).json(statusPayload);
+  } else {
+    return res.status(503).json(statusPayload);
+  }
+});
+
 
 // Initialize separate Redis client for session store
 const sessionRedisClient = new Redis({
