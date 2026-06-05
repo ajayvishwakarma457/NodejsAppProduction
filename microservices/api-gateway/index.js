@@ -145,30 +145,71 @@ app.use('/api/v1/notifications', proxy(() => getServiceHost('notification-servic
   ...proxyOptions
 }));
 
-// Route handler for synchronous gRPC communication demonstration
+const createCircuitBreaker = require('../../src/utils/circuitBreaker');
+
+// Promise-based wrapper for user-service gRPC lookup
+const fetchUserViaGrpc = (id) => {
+  return new Promise((resolve, reject) => {
+    userClient.getUserInfo({ id }, (err, response) => {
+      if (err) {
+        if (err.code === grpc.status.NOT_FOUND) {
+          const notFoundError = new Error(err.details || 'User not found via gRPC');
+          notFoundError.statusCode = 404;
+          return reject(notFoundError);
+        }
+        return reject(err);
+      }
+      resolve(response);
+    });
+  });
+};
+
+// Initialize Opossum Circuit Breaker
+const userGrpcBreaker = createCircuitBreaker(fetchUserViaGrpc, {
+  errorFilter: (err) => {
+    // operational/business errors (like user 404 not found) do not trip the circuit
+    return err.statusCode === 404;
+  }
+});
+
+// Configure fallback to trigger when downstream User Service goes offline or times out
+userGrpcBreaker.fallback((id, err) => {
+  if (err && err.statusCode === 404) {
+    throw err; // bubble up 404s to avoid responding with fallback payload
+  }
+  return {
+    id,
+    name: 'Anonymous (Circuit Fallback)',
+    email: 'offline-mode@gateway.local',
+    role: 'user',
+    createdAt: new Date().toISOString(),
+    _isFallback: true
+  };
+});
+
+// Route handler invoking the Circuit Breaker
 app.get('/api/v1/grpc-user/:id', (req, res) => {
   const { id } = req.params;
   
-  userClient.getUserInfo({ id }, (err, response) => {
-    if (err) {
-      logger.error(`[API Gateway] gRPC error calling getUserInfo for user ${id}: ${err.message}`);
-      if (err.code === grpc.status.NOT_FOUND) {
+  userGrpcBreaker.fire(id)
+    .then((userData) => {
+      res.status(200).json({
+        status: 'success',
+        data: userData,
+      });
+    })
+    .catch((err) => {
+      if (err.statusCode === 404) {
         return res.status(404).json({
           status: 'fail',
-          message: err.details || 'User not found via gRPC',
+          message: err.message,
         });
       }
-      return res.status(500).json({
+      res.status(500).json({
         status: 'error',
-        message: err.details || 'Internal server error via gRPC',
+        message: err.message || 'Service temporarily unavailable',
       });
-    }
-    
-    return res.status(200).json({
-      status: 'success',
-      data: response,
     });
-  });
 });
 
 // Basic edge gateway health check

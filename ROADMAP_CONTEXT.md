@@ -148,7 +148,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] API Gateway patterns (Kong, AWS API Gateway, Nginx)
 - [x] Service discovery and load balancing
 - [x] Saga pattern for distributed transactions
-- [ ] Circuit breaker (opossum library)
+- [x] Circuit breaker (opossum library)
 
 ### 2. Message Queues & Event Streaming
 - RabbitMQ — exchanges, queues, routing keys
