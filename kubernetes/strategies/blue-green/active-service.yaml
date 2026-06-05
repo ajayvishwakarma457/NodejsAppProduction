@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-monolith-active
+  namespace: default
+  labels:
+    app: nodejs-monolith
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: http
+  selector:
+    app: nodejs-monolith
+    color: blue # Initially points to blue
