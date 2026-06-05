@@ -9,5 +9,7 @@ router.use(authenticate);
 
 router.post('/trigger-email', JobController.triggerEmail);
 router.get('/failed', JobController.getFailedJobs);
+router.post('/heavy-cpu', JobController.executeHeavyCpuTask);
+router.post('/heapdump', JobController.triggerHeapdump);
 
 module.exports = router;

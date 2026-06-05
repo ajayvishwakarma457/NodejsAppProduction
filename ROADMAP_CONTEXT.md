@@ -172,7 +172,7 @@ This document serves as the core context for building our Node.js application, d
 
 ### 5. Observability (Monitoring, Logs, Traces)
 - OpenTelemetry — distributed tracing — Industry standard
-- Prometheus metrics + Grafana dashboards
+- [x] Prometheus metrics + Grafana dashboards
 - ELK Stack (Elasticsearch, Logstash, Kibana) or Loki
 - Alerting: PagerDuty, OpsGenie
 - Synthetic monitoring and uptime checks

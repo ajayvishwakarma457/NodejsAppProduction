@@ -55,6 +55,54 @@ const JobController = {
       next(err);
     }
   },
+
+  // POST /api/v1/jobs/heavy-cpu
+  executeHeavyCpuTask: async (req, res, next) => {
+    try {
+      const { number } = req.body;
+      if (number === undefined) {
+        return next(new AppError('Please provide a "number" for the Fibonacci calculation.', 400));
+      }
+
+      const inputNumber = parseInt(number, 10);
+      if (isNaN(inputNumber) || inputNumber < 0) {
+        return next(new AppError('"number" must be a non-negative integer.', 400));
+      }
+
+      const runHeavyCpuTask = require('../../utils/workerRunner');
+      const result = await runHeavyCpuTask(inputNumber);
+
+      res.status(200).json({
+        status: 'success',
+        message: 'CPU-bound task processed successfully via Worker Thread',
+        data: {
+          input: inputNumber,
+          result,
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // POST /api/v1/jobs/heapdump
+  triggerHeapdump: async (req, res, next) => {
+    try {
+      const { writeHeapSnapshot } = require('../../utils/heapdump');
+      const snapshotInfo = await writeHeapSnapshot();
+
+      res.status(200).json({
+        status: 'success',
+        message: 'V8 heap snapshot generated successfully',
+        data: {
+          filename: snapshotInfo.filename,
+          filepath: snapshotInfo.filepath,
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 
 module.exports = JobController;

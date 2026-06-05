@@ -1,9 +1,15 @@
+// Initialize OpenTelemetry distributed tracing SDK before any other module loads
+const { initOTel } = require('./utils/otel');
+initOTel();
+
 const path = require('path');
 const dotenv = require('dotenv');
 
 // Load environment variables before importing app
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
+const cluster = require('cluster');
+const os = require('os');
 const connectDB = require('./config/db');
 const app = require('./app');
 const logger = require('./utils/logger');
@@ -66,6 +72,21 @@ const startServer = async () => {
   process.on('SIGINT', gracefulShutdown);
 };
 
-startServer();
+if (process.env.CLUSTER_MODE === 'true' && (cluster.isPrimary || cluster.isMaster)) {
+  const numCPUs = os.cpus().length;
+  logger.info(`[Cluster Master] Primary process ${process.pid} is running. Forking ${numCPUs} workers...`);
+
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker, code, signal) => {
+    logger.warn(`[Cluster Master] Worker process ${worker.process.pid} exited (Code: ${code}, Signal: ${signal}). Re-forking worker...`);
+    cluster.fork();
+  });
+} else {
+  startServer();
+}
+
 
 

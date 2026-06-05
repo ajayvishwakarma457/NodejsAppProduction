@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  // 1. Unary RPC
+  rpc GetUser (UserRequest) returns (UserResponse);
+
+  // 2. Server Streaming RPC
+  rpc StreamUserActivities (ActivityStreamRequest) returns (stream ActivityResponse);
+
+  // 3. Client Streaming RPC
+  rpc UploadAuditLogs (stream AuditLogRequest) returns (UploadSummaryResponse);
+
+  // 4. Bidirectional Streaming RPC
+  rpc RealtimeChat (stream ChatMessage) returns (stream ChatMessage);
+}
+
+// Message types
+message UserRequest {
+  string id = 1;
+}
+
+message UserResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+}
+
+message ActivityStreamRequest {
+  string userId = 1;
+}
+
+message ActivityResponse {
+  string activityId = 1;
+  string activityType = 2;
+  string timestamp = 3;
+  string details = 4;
+}
+
+message AuditLogRequest {
+  string userId = 1;
+  string action = 2;
+  string timestamp = 3;
+}
+
+message UploadSummaryResponse {
+  int32 processedCount = 1;
+  string status = 2;
+}
+
+message ChatMessage {
+  string sender = 1;
+  string message = 2;
+  string timestamp = 3;
+}

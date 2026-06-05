@@ -47,3 +47,43 @@ appEventEmitter.on('user:registered', async (user) => {
     console.error(`[Event-Listener] Failed to publish registration audit log to RabbitMQ: ${err.message}`);
   }
 });
+
+// Listener 3: Activity Streaming via Apache Kafka
+const kafkaProducer = require('../messaging/kafkaProducer');
+
+appEventEmitter.on('user:registered', async (user) => {
+  const userId = (user.id || user._id || '').toString();
+  try {
+    await kafkaProducer.publish(
+      'user-activities',
+      userId, // Partition Key: guarantees order of events per user
+      {
+        userId,
+        email: user.email,
+        activity: 'USER_REGISTERED',
+        details: 'User registered via onboarding workflow.',
+      }
+    );
+  } catch (err) {
+    console.error(`[Event-Listener] Failed to stream user activity to Kafka: ${err.message}`);
+  }
+});
+
+// Listener 4: Lightweight Notification Pub/Sub via NATS
+const natsPublisher = require('../messaging/natsPublisher');
+
+appEventEmitter.on('user:registered', async (user) => {
+  const userId = (user.id || user._id || '').toString();
+  try {
+    await natsPublisher.publish('user.notifications', {
+      userId,
+      email: user.email,
+      name: user.name,
+      type: 'WELCOME_NOTIFICATION',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error(`[Event-Listener] Failed to publish notification event to NATS: ${err.message}`);
+  }
+});
+

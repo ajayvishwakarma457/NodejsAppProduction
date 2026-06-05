@@ -54,15 +54,43 @@ const startService = () => {
         logger.warn(`[Notification Service RMQ] RabbitMQ consumer connection deferred: ${err.message}`);
       });
 
+      // Initialize Apache Kafka Consumer for Activity Ingestion
+      const kafkaConsumer = require('../../src/messaging/kafkaConsumer');
+      kafkaConsumer.startConsumer(
+        'notification-group',
+        'user-activities',
+        async (value, key, partition, offset) => {
+          logger.info(`[Notification Service Kafka] Ingested event [Key: ${key}] at Partition: ${partition}, Offset: ${offset}: ${JSON.stringify(value)}`);
+        }
+      ).catch((err) => {
+        logger.warn(`[Notification Service Kafka] Ingestion connection deferred: ${err.message}`);
+      });
+
+      // Initialize NATS Subscriber for Transient Notifications
+      const natsSubscriber = require('../../src/messaging/natsSubscriber');
+      const natsConfig = require('../../src/config/nats');
+      natsSubscriber.subscribe(
+        'user.notifications',
+        async (payload, subject) => {
+          logger.info(`[Notification Service NATS] Processed transient notification on subject "${subject}": ${JSON.stringify(payload)}`);
+        }
+      ).catch((err) => {
+        logger.warn(`[Notification Service NATS] NATS subscription deferred: ${err.message}`);
+      });
+
       const shutdown = async () => {
         logger.info('[Notification Service] Shutting down service...');
         stopHeartbeat();
+        await kafkaConsumer.stopAll();
+        await natsSubscriber.unsubscribeAll();
+        await natsConfig.close();
         await serviceRegistry.deregisterInstance('notification-service', instanceUrl);
         serverInstance.close(() => {
           logger.info('[Notification Service] Process terminated cleanly.');
           process.exit(0);
         });
       };
+
       
       process.on('SIGTERM', shutdown);
       process.on('SIGINT', shutdown);

@@ -1,0 +1,76 @@
+groups:
+  - name: nodejs_application_alerts
+    interval: 30s
+    rules:
+      # ── HIGH ERROR RATE ──────────────────────────────────────────────────────
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status_code=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High HTTP 5xx error rate on {{ $labels.app }}"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes (threshold: 5%)."
+
+      # ── HIGH LATENCY ─────────────────────────────────────────────────────────
+      - alert: HighP95Latency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route)
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High p95 latency on route {{ $labels.route }}"
+          description: "p95 latency is {{ $value }}s on {{ $labels.route }} (threshold: 2s)."
+
+      # ── HEAP MEMORY ──────────────────────────────────────────────────────────
+      - alert: HighHeapMemoryUsage
+        expr: |
+          nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes > 0.90
+        for: 5m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Node.js heap memory usage above 90%"
+          description: "Heap used: {{ $value | humanizePercentage }} of total heap."
+
+      # ── EVENT LOOP LAG ───────────────────────────────────────────────────────
+      - alert: HighEventLoopLag
+        expr: nodejs_eventloop_lag_seconds > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Node.js event loop lag is high"
+          description: "Event loop lag is {{ $value }}s (threshold: 0.5s). App may be CPU-bound."
+
+      # ── INSTANCE DOWN ────────────────────────────────────────────────────────
+      - alert: NodejsAppDown
+        expr: up{job="nodejs-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Node.js application is DOWN"
+          description: "The nodejs-app target has been unreachable for more than 1 minute."
+
+      # ── NO REQUESTS (dead traffic) ────────────────────────────────────────────
+      - alert: NoIncomingTraffic
+        expr: sum(rate(http_requests_total[5m])) == 0
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "No HTTP traffic detected"
+          description: "Zero requests received in the last 10 minutes. Possible upstream issue."

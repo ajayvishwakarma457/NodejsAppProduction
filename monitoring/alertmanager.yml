@@ -1,0 +1,55 @@
+global:
+  resolve_timeout: 5m
+  # Slack fallback (optional — set SLACK_WEBHOOK_URL env var)
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'default'
+  routes:
+    # Critical alerts → PagerDuty
+    - match:
+        severity: critical
+      receiver: pagerduty
+      continue: true   # also send to default
+
+    # Warning alerts → OpsGenie
+    - match:
+        severity: warning
+      receiver: opsgenie
+
+receivers:
+  # ── Default (catch-all) ──────────────────────────────────────────────────────
+  - name: 'default'
+    # Extend with Slack/email here if needed
+
+  # ── PagerDuty ────────────────────────────────────────────────────────────────
+  - name: pagerduty
+    pagerduty_configs:
+      - routing_key: '<PAGERDUTY_INTEGRATION_KEY>'
+        send_resolved: true
+        description: '{{ .CommonAnnotations.summary }}'
+        details:
+          firing: '{{ .Alerts.Firing | len }}'
+          resolved: '{{ .Alerts.Resolved | len }}'
+          description: '{{ .CommonAnnotations.description }}'
+
+  # ── OpsGenie ─────────────────────────────────────────────────────────────────
+  - name: opsgenie
+    opsgenie_configs:
+      - api_key: '<OPSGENIE_API_KEY>'
+        send_resolved: true
+        message: '{{ .CommonAnnotations.summary }}'
+        description: '{{ .CommonAnnotations.description }}'
+        priority: 'P3'
+        tags: 'nodejs,production'
+
+inhibit_rules:
+  # If the app is down, suppress all other alerts (avoid alert storm)
+  - source_match:
+      alertname: NodejsAppDown
+    target_match_re:
+      alertname: '.+'
+    equal: ['job']

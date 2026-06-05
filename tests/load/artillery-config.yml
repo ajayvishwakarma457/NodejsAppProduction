@@ -1,0 +1,22 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 10 # Phase lasts 10 seconds
+      arrivalRate: 5 # Spawn 5 users per second
+      rampTo: 15 # Ramp up to 15 users per second
+      name: Ramping Load Phase
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      x-user-id: "artillery_load_user"
+
+scenarios:
+  - name: "CPU-Bound Calculation Performance Scenario"
+    flow:
+      - post:
+          url: "/api/v1/jobs/heavy-cpu"
+          json:
+            number: 10 # Fib(10) is 55
+          expect:
+            - statusCode: 200
+            - contentType: json

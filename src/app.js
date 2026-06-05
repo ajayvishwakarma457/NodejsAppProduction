@@ -25,6 +25,13 @@ const app = express();
 app.use(correlationIdMiddleware);
 app.use(versionNegotiator);
 
+// Prometheus metrics collection
+const { metricsEndpoint } = require('./utils/metrics');
+const metricsMiddleware = require('./middlewares/v1/metricsMiddleware');
+app.use(metricsMiddleware);
+app.get('/metrics', metricsEndpoint);
+
+
 // Initialize separate Redis client for session store
 const sessionRedisClient = new Redis({
   host: process.env.REDIS_HOST || '127.0.0.1',

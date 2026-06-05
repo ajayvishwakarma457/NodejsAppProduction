@@ -1,6 +1,8 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
+const { activeConnections } = require('./metrics');
+
 
 let io = null;
 
@@ -49,6 +51,7 @@ const socketService = {
 
     chatNamespace.on('connection', (socket) => {
       console.log(`[Socket.io] User ${socket.user.name} connected to /chat namespace.`);
+      activeConnections.inc({ type: 'websocket' });
       
       let currentRoom = null;
 
@@ -116,6 +119,7 @@ const socketService = {
       // Handle disconnection
       socket.on('disconnect', () => {
         console.log(`[Socket.io] User ${socket.user.name} disconnected from /chat.`);
+        activeConnections.dec({ type: 'websocket' });
         if (currentRoom) {
           socket.to(currentRoom).emit('sys-message', {
             user: 'System',

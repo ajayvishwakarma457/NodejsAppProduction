@@ -1,6 +1,8 @@
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
+const { activeConnections } = require('./metrics');
+
 
 let wss = null;
 
@@ -73,6 +75,7 @@ const wsService = {
     // 5. Connection lifecycle handlers
     wss.on('connection', (ws) => {
       console.log(`[ws] User ${ws.user.name} connected to raw WebSocket server.`);
+      activeConnections.inc({ type: 'ws' });
 
       ws.on('message', (messageStr) => {
         try {
@@ -100,6 +103,7 @@ const wsService = {
 
       ws.on('close', () => {
         console.log(`[ws] User ${ws.user.name} disconnected.`);
+        activeConnections.dec({ type: 'ws' });
         if (ws.currentRoom) {
           broadcastToRoom(ws.currentRoom, {
             type: 'sys-message',

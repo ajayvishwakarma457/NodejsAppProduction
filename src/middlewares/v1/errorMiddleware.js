@@ -1,5 +1,6 @@
 const AppError = require('../../utils/AppError');
 const logger = require('../../utils/logger');
+const alerting = require('../../utils/alerting');
 
 // Database translators
 const handleCastErrorDB = (err) => {
@@ -51,6 +52,21 @@ const sendErrorProd = (err, res) => {
   } else {
     // Programming or other unknown error: don't leak details
     logger.error('Unhandled System Exception:', err);
+
+    // Fire critical alert to PagerDuty + OpsGenie for all unhandled system errors
+    alerting.critical(
+      `[${process.env.APP_NAME || 'App'}] Unhandled Exception: ${err.message}`,
+      {
+        errorName:  err.name,
+        statusCode: err.statusCode || 500,
+        stack:      err.stack?.split('\n').slice(0, 5).join(' | '),
+        path:       res.req?.path,
+        method:     res.req?.method,
+      }
+    ).catch((alertErr) => {
+      logger.error('[Alerting] Failed to dispatch critical alert:', alertErr.message);
+    });
+
     res.status(500).json({
       status: 'error',
       message: 'Something went very wrong!'

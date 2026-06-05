@@ -87,6 +87,37 @@ const transports = [
   }),
 ];
 
+// --- Loki Transport ---
+// Activated when LOKI_HOST env var is set (e.g., LOKI_HOST=http://localhost:3100)
+// Gracefully skipped if not configured, so the app runs normally without Loki
+if (process.env.LOKI_HOST) {
+  try {
+    const LokiTransport = require('winston-loki');
+    transports.push(
+      new LokiTransport({
+        host: process.env.LOKI_HOST,           // e.g., http://localhost:3100
+        labels: {
+          app: process.env.APP_NAME || 'nodejs-production-platform',
+          env: process.env.NODE_ENV || 'development',
+        },
+        json: true,                            // send logs as JSON
+        format: winston.format.combine(
+          injectCorrelationId(),
+          winston.format.json()
+        ),
+        replaceTimestamp: false,               // keep Winston timestamp
+        onConnectionError: (err) => {
+          // Non-fatal — log to console only, don't crash the app
+          console.error('[Loki] Connection error (logs will not be shipped):', err.message);
+        },
+      })
+    );
+    console.log(`[Loki] Winston transport connected → ${process.env.LOKI_HOST}`);
+  } catch (err) {
+    console.warn('[Loki] Transport failed to initialize (winston-loki may not be installed):', err.message);
+  }
+}
+
 // Create the logger instance
 const logger = winston.createLogger({
   level: level(),
@@ -96,3 +127,4 @@ const logger = winston.createLogger({
 });
 
 module.exports = logger;
+
