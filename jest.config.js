@@ -26,4 +26,14 @@ module.exports = {
   testMatch: [
     '**/tests/**/*.test.js',
   ],
+
+  // Enforce coverage thresholds for production build validation
+  coverageThreshold: {
+    global: {
+      statements: 30,
+      branches: 20,
+      functions: 15,
+      lines: 30,
+    },
+  },
 };
