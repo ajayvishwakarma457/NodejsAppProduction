@@ -22,6 +22,10 @@ const startServer = async () => {
 
     // Initialize BullMQ Workers to process background jobs
     require('./workers/emailWorker');
+
+    // Initialize scheduled cron jobs
+    const CronScheduler = require('./utils/cronScheduler');
+    CronScheduler.init();
   });
 
   // Handle graceful shutdown
@@ -33,6 +37,12 @@ const startServer = async () => {
       console.log('BullMQ emailWorker closed.');
     } catch (err) {
       console.error('Error closing BullMQ worker:', err.message);
+    }
+    try {
+      const CronScheduler = require('./utils/cronScheduler');
+      CronScheduler.stop();
+    } catch (err) {
+      console.error('Error stopping cron scheduler:', err.message);
     }
     server.close(() => {
       console.log('HTTP server closed.');

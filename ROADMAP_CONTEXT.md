@@ -109,7 +109,7 @@ This document serves as the core context for building our Node.js application, d
 
 ### 8. Background Jobs & Queues
 - [x] BullMQ with Redis — Production-recommended
-- [ ] Job scheduling with cron (node-cron)
+- [x] Job scheduling with cron (node-cron)
 - Retry logic, dead letter queues, job priorities
 - Event-driven patterns with EventEmitter
 
