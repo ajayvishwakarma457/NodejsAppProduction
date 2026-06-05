@@ -1,0 +1,197 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Node.js Application Production API",
+    "description": "Interactive Swagger API documentation for our production-ready Node.js Express application.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Development API Gateway"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "description": "Validates name, unique email, and password, then registers and issues authorization tokens.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": { "type": "string", "example": "John Doe" },
+                  "email": { "type": "string", "format": "email", "example": "john@example.com" },
+                  "password": { "type": "string", "format": "password", "example": "securepassword123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "success" },
+                    "accessToken": { "type": "string" },
+                    "refreshToken": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "email": { "type": "string" },
+                        "role": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Validation failed or duplicate email" }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get all users (Admin/Moderator only)",
+        "description": "Retrieves lists of registered users supporting dynamic offset/cursor pagination, field selection, and filtering.",
+        "security": [
+          { "BearerAuth": [] },
+          { "ApiKeyAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Pagination scheme: 'offset' or 'cursor'",
+            "schema": { "type": "string", "enum": ["offset", "cursor"], "default": "offset" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (for offset-based)",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items to return",
+            "schema": { "type": "integer", "default": 10 }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "MongoDB ObjectID starting anchor (for cursor-based)",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort order (e.g. '-createdAt,name')",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Fields limiting selection list (e.g. 'name,email')",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Filter by role",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "success" },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "type": { "type": "string" },
+                        "limit": { "type": "integer" },
+                        "nextCursor": { "type": "string", "nullable": true },
+                        "hasNextPage": { "type": "boolean" }
+                      }
+                    },
+                    "results": { "type": "integer" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "email": { "type": "string" },
+                          "role": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Authentication credentials missing" },
+          "403": { "description": "Insufficient permissions (admin/moderator role required)" }
+        }
+      },
+      "post": {
+        "summary": "Create a new user (Admin only)",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email"],
+                "properties": {
+                  "name": { "type": "string", "example": "Jane Smith" },
+                  "email": { "type": "string", "format": "email", "example": "jane@example.com" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User created successfully" },
+          "400": { "description": "Validation failed" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Provide access JWT tokens as Bearer tokens in headers."
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Provide a hashed or raw client API key."
+      }
+    }
+  }
+}

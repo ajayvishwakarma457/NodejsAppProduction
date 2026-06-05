@@ -34,9 +34,14 @@ sessionRedisClient.on('error', (err) => {
   logger.error('Session Redis Client Error:', err);
 });
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
 // --- 1. Global Middlewares ---
-// Secure HTTP headers
-app.use(helmet());
+// Secure HTTP headers (CSPs disabled to allow inline style assets for interactive Swagger documentation)
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
 app.use(passport.initialize());
 
 // Configure Redis Session Store
@@ -117,7 +122,8 @@ app.use(loggerMiddleware);
 // Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-
+// Mount Swagger interactive API documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // --- 2. Routes ---
 app.use('/api/v1', v1Router);
