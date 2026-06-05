@@ -86,11 +86,30 @@ app.use('/api/v1/users', userRoutes);
 // Centralized error mapping middleware
 app.use(errorMiddleware);
 
+const serviceRegistry = require('../../src/utils/serviceRegistry');
+
 const startService = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
+    const serverInstance = app.listen(PORT, () => {
       logger.info(`[User Identity Service] Bounded Context successfully active on port ${PORT}`);
+      
+      // Dynamic Service Registration with TTL and background heartbeat
+      const instanceUrl = `http://127.0.0.1:${PORT}`;
+      const stopHeartbeat = serviceRegistry.startHeartbeat('user-service', instanceUrl);
+      
+      const shutdown = async () => {
+        logger.info('[User Identity Service] Shutting down service...');
+        stopHeartbeat();
+        await serviceRegistry.deregisterInstance('user-service', instanceUrl);
+        serverInstance.close(() => {
+          logger.info('[User Identity Service] Process terminated cleanly.');
+          process.exit(0);
+        });
+      };
+      
+      process.on('SIGTERM', shutdown);
+      process.on('SIGINT', shutdown);
     });
     startGrpcServer();
   } catch (err) {

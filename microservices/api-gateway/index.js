@@ -42,12 +42,54 @@ app.use(versionNegotiator);
 
 const jwt = require('jsonwebtoken');
 
-// Define service locations
+const serviceRegistry = require('../../src/utils/serviceRegistry');
+
+// Define default service locations for fallback
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:6001';
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:6002';
 
-logger.info(`[API Gateway] Routing users & auth to: ${USER_SERVICE_URL}`);
-logger.info(`[API Gateway] Routing notifications to: ${NOTIFICATION_SERVICE_URL}`);
+logger.info(`[API Gateway] Routing users & auth to (default): ${USER_SERVICE_URL}`);
+logger.info(`[API Gateway] Routing notifications to (default): ${NOTIFICATION_SERVICE_URL}`);
+
+// Local cache for registered service instances
+const serviceHosts = {
+  'user-service': [],
+  'notification-service': [],
+};
+const roundRobinIndex = {
+  'user-service': 0,
+  'notification-service': 0,
+};
+
+const updateRegistryCache = async () => {
+  try {
+    serviceHosts['user-service'] = await serviceRegistry.getInstances('user-service');
+    serviceHosts['notification-service'] = await serviceRegistry.getInstances('notification-service');
+  } catch (err) {
+    logger.error(`[API Gateway LB Cache] Failed to sync registry: ${err.message}`);
+  }
+};
+
+// Start update interval (every 2 seconds) to sync with Redis registry
+const cacheInterval = setInterval(updateRegistryCache, 2000);
+// Prevent blocking process shutdown in tests
+if (cacheInterval.unref) {
+  cacheInterval.unref();
+}
+updateRegistryCache();
+
+// Helper to resolve host dynamically (Round-Robin client-side LB)
+const getServiceHost = (serviceName, fallbackUrl) => {
+  const hosts = serviceHosts[serviceName];
+  if (!hosts || hosts.length === 0) {
+    return fallbackUrl;
+  }
+  const index = roundRobinIndex[serviceName] % hosts.length;
+  roundRobinIndex[serviceName]++;
+  const targetHost = hosts[index];
+  logger.info(`[API Gateway LB] Routing to ${serviceName} host: ${targetHost}`);
+  return targetHost;
+};
 
 // Authentication Parser Middleware on Gateway Edge
 const gatewayAuthParser = (req, res, next) => {
@@ -87,18 +129,18 @@ const proxyOptions = {
   }
 };
 
-// Route proxies
-app.use('/api/v1/auth', proxy(USER_SERVICE_URL, {
+// Route proxies using dynamic host resolution functions
+app.use('/api/v1/auth', proxy(() => getServiceHost('user-service', USER_SERVICE_URL), {
   proxyReqPathResolver: (req) => `/api/v1/auth${req.url}`,
   ...proxyOptions
 }));
 
-app.use('/api/v1/users', proxy(USER_SERVICE_URL, {
+app.use('/api/v1/users', proxy(() => getServiceHost('user-service', USER_SERVICE_URL), {
   proxyReqPathResolver: (req) => `/api/v1/users${req.url}`,
   ...proxyOptions
 }));
 
-app.use('/api/v1/notifications', proxy(NOTIFICATION_SERVICE_URL, {
+app.use('/api/v1/notifications', proxy(() => getServiceHost('notification-service', NOTIFICATION_SERVICE_URL), {
   proxyReqPathResolver: (req) => `/api/v1/notifications${req.url}`,
   ...proxyOptions
 }));
