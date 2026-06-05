@@ -13,6 +13,7 @@ const redisDemoRoutes = require('./redisDemoRoutes');
 const uploadRoutes = require('./uploadRoutes');
 const jobRoutes = require('./jobRoutes');
 const sseRoutes = require('./sseRoutes');
+const featureFlagDemoRoutes = require('./featureFlagDemoRoutes');
 
 // Mount routes to specific resource endpoints
 router.use('/auth', authRoutes);
@@ -28,6 +29,6 @@ router.use('/redis-demo', redisDemoRoutes);
 router.use('/uploads', uploadRoutes);
 router.use('/jobs', jobRoutes);
 router.use('/sse', sseRoutes);
+router.use('/feature-flags', featureFlagDemoRoutes);
 
 module.exports = router;
-
