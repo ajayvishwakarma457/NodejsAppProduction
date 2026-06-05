@@ -19,11 +19,21 @@ const startServer = async () => {
     // Initialize cache Pub/Sub invalidation listener
     const PubSubInvalidator = require('./utils/pubSubInvalidator');
     PubSubInvalidator.initListener();
+
+    // Initialize BullMQ Workers to process background jobs
+    require('./workers/emailWorker');
   });
 
   // Handle graceful shutdown
-  const gracefulShutdown = () => {
+  const gracefulShutdown = async () => {
     console.log('Shutting down server gracefully...');
+    try {
+      const emailWorker = require('./workers/emailWorker');
+      await emailWorker.close();
+      console.log('BullMQ emailWorker closed.');
+    } catch (err) {
+      console.error('Error closing BullMQ worker:', err.message);
+    }
     server.close(() => {
       console.log('HTTP server closed.');
       process.exit(0);
