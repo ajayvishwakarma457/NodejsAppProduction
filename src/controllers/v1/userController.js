@@ -5,10 +5,10 @@ const PubSubInvalidator = require('../../utils/pubSubInvalidator');
 const localCache = require('../../utils/localCache');
 
 const UserController = {
-  // GET /api/v1/users (with optional query string search ?name=xxx)
+  // GET /api/v1/users (with dynamic cursor-based and offset-based pagination)
   getUsers: async (req, res, next) => {
     try {
-      const { name } = req.query;
+      const { name, page, limit, cursor, type } = req.query;
       let query = {};
 
       if (name) {
@@ -16,8 +16,70 @@ const UserController = {
         query.name = { $regex: name, $options: 'i' };
       }
 
-      const users = await User.find(query);
-      res.json(users);
+      const parsedLimit = Math.min(parseInt(limit, 10) || 10, 100);
+
+      // --- 1. Cursor-Based Pagination ---
+      if (type === 'cursor' || cursor) {
+        let cursorQuery = { ...query };
+        if (cursor) {
+          cursorQuery._id = { $gt: cursor }; // Sort ascending by _id
+        }
+
+        // Query limit + 1 items to determine if a next page exists without doing a full count query
+        const users = await User.find(cursorQuery)
+          .sort({ _id: 1 })
+          .limit(parsedLimit + 1)
+          .lean();
+
+        const hasNextPage = users.length > parsedLimit;
+        if (hasNextPage) {
+          users.pop(); // discard the extra record
+        }
+
+        const nextCursor = hasNextPage ? users[users.length - 1]._id : null;
+
+        return res.status(200).json({
+          status: 'success',
+          pagination: {
+            type: 'cursor',
+            limit: parsedLimit,
+            nextCursor,
+            hasNextPage,
+          },
+          results: users.length,
+          data: users,
+        });
+      }
+
+      // --- 2. Offset-Based Pagination (Default) ---
+      const parsedPage = Math.max(parseInt(page, 10) || 1, 1);
+      const skip = (parsedPage - 1) * parsedLimit;
+
+      const [users, totalCount] = await Promise.all([
+        User.find(query)
+          .sort({ _id: 1 })
+          .skip(skip)
+          .limit(parsedLimit)
+          .lean(),
+        User.countDocuments(query),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / parsedLimit);
+
+      return res.status(200).json({
+        status: 'success',
+        pagination: {
+          type: 'offset',
+          page: parsedPage,
+          limit: parsedLimit,
+          totalCount,
+          totalPages,
+          hasNextPage: parsedPage < totalPages,
+          hasPrevPage: parsedPage > 1,
+        },
+        results: users.length,
+        data: users,
+      });
     } catch (err) {
       next(err);
     }

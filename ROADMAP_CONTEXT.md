@@ -132,7 +132,7 @@ This document serves as the core context for building our Node.js application, d
 - [x] Correlation IDs for request tracing (implemented AsyncLocalStorage request tracker)
 
 ### 12. API Design Best Practices
-- Pagination: cursor-based vs offset-based
+- [x] Pagination: cursor-based vs offset-based (refactored getUsers endpoint with dual modes)
 - Filtering, sorting, field selection
 - OpenAPI / Swagger documentation
 - Idempotency keys for safe retries

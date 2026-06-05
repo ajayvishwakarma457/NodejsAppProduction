@@ -38,25 +38,62 @@ describe('User API Integration Tests', () => {
       expect(response.body.message).toContain('do not have permission');
     });
 
-    test('should return 200 and users list if authenticated as admin', async () => {
+    test('should return 200 and users list inside paginated envelope if authenticated as admin', async () => {
       jwt.verify.mockReturnValue({ id: 'admin123' });
       User.findById.mockResolvedValue({
         _id: 'admin123',
         name: 'Admin User',
         role: 'admin',
       });
-      User.find.mockResolvedValue([
-        { name: 'User One', email: 'userone@example.com' },
-        { name: 'User Two', email: 'usertwo@example.com' },
-      ]);
+      User.find.mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockResolvedValue([
+          { name: 'User One', email: 'userone@example.com' },
+          { name: 'User Two', email: 'usertwo@example.com' },
+        ]),
+      });
+      User.countDocuments.mockResolvedValue(2);
 
       const response = await request(app)
         .get('/api/v1/users')
         .set('Authorization', 'Bearer validtoken');
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBe(2);
+      expect(response.body.status).toBe('success');
+      expect(response.body.pagination.type).toBe('offset');
+      expect(response.body.pagination.page).toBe(1);
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.data.length).toBe(2);
+    });
+
+    test('should return cursor pagination metadata when querying type=cursor', async () => {
+      jwt.verify.mockReturnValue({ id: 'admin123' });
+      User.findById.mockResolvedValue({
+        _id: 'admin123',
+        name: 'Admin User',
+        role: 'admin',
+      });
+      User.find.mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockResolvedValue([
+          { _id: 'userA', name: 'User A', email: 'usera@example.com' },
+          { _id: 'userB', name: 'User B', email: 'userb@example.com' },
+        ]),
+      });
+
+      const response = await request(app)
+        .get('/api/v1/users?type=cursor&limit=1')
+        .set('Authorization', 'Bearer validtoken');
+
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe('success');
+      expect(response.body.pagination.type).toBe('cursor');
+      expect(response.body.pagination.hasNextPage).toBe(true);
+      expect(response.body.pagination.nextCursor).toBe('userA'); // popped index 1
+      expect(response.body.data.length).toBe(1);
     });
   });
 
