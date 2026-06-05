@@ -35,6 +35,10 @@ const startServer = async () => {
   const socketService = require('./utils/socketService');
   socketService.init(server);
 
+  // Initialize lightweight ws real-time server
+  const wsService = require('./utils/wsService');
+  wsService.attach(server);
+
   // Handle graceful shutdown
   const gracefulShutdown = async () => {
     console.log('Shutting down server gracefully...');

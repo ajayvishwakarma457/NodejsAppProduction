@@ -16,8 +16,11 @@ const socketService = {
 
     console.log('[Socket.io] Real-time server initialized.');
 
+    // 2. Chat Namespace definition
+    const chatNamespace = io.of('/chat');
+
     // 1. Handshake Authentication Middleware
-    io.use(async (socket, next) => {
+    chatNamespace.use(async (socket, next) => {
       try {
         const token = socket.handshake.auth.token || socket.handshake.query.token;
 
@@ -43,9 +46,6 @@ const socketService = {
         return next(new Error(`Authentication failed: ${err.message}`));
       }
     });
-
-    // 2. Chat Namespace definition
-    const chatNamespace = io.of('/chat');
 
     chatNamespace.on('connection', (socket) => {
       console.log(`[Socket.io] User ${socket.user.name} connected to /chat namespace.`);

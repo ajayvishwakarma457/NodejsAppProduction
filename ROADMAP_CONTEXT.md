@@ -115,14 +115,14 @@ This document serves as the core context for building our Node.js application, d
 
 ### 9. WebSockets & Real-time
 - [x] Socket.io — rooms, namespaces, broadcasting
-- [ ] ws — lightweight alternative
-- Server-Sent Events (SSE) for one-way streaming
+- [x] ws — lightweight alternative
+- [x] Server-Sent Events (SSE) for one-way streaming
 
 ### 10. Testing
-- Unit testing with Jest or Vitest
-- Integration/API testing with Supertest
-- Mocking: jest.mock, sinon
-- Test coverage reporting
+- [x] Unit testing with Jest
+- [ ] Integration/API testing with Supertest
+- [x] Mocking: jest.mock, sinon (implemented mock database calls & token verification)
+- [x] Test coverage reporting (implemented Jest coverage script and reports)
 - E2E testing with Playwright or Cypress
 
 ### 11. Logging & Error Handling

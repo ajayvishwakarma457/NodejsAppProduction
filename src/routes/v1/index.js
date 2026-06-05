@@ -8,6 +8,7 @@ const transactionRoutes = require('./transactionRoutes');
 const redisDemoRoutes = require('./redisDemoRoutes');
 const uploadRoutes = require('./uploadRoutes');
 const jobRoutes = require('./jobRoutes');
+const sseRoutes = require('./sseRoutes');
 
 // Mount routes to specific resource endpoints
 router.use('/auth', authRoutes);
@@ -18,6 +19,7 @@ router.use('/transactions', transactionRoutes);
 router.use('/redis-demo', redisDemoRoutes);
 router.use('/uploads', uploadRoutes);
 router.use('/jobs', jobRoutes);
+router.use('/sse', sseRoutes);
 
 module.exports = router;
 

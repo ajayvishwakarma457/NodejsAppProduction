@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "db:seed": "node src/db/seeder.js"
+    "db:seed": "node src/db/seeder.js",
+    "test": "jest",
+    "test:watch": "jest --watchAll",
+    "test:coverage": "jest --coverage"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -39,6 +42,7 @@
     "rate-limit-redis": "^5.0.0",
     "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
+    "ws": "^8.21.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -46,6 +50,7 @@
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.19.0",
     "@types/node": "^25.9.1",
+    "jest": "^30.4.2",
     "nodemon": "^3.1.14",
     "prisma": "^6.19.3",
     "ts-node": "^10.9.2",

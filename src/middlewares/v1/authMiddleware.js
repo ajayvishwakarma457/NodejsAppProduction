@@ -6,9 +6,18 @@ const protect = async (req, res, next) => {
   try {
     let token;
 
-    // 1. Get token from authorization header
+    // 1. Get token from authorization header or query param
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.query.token) {
+      token = req.query.token;
+    }
+    
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      // Check if there is dual prefixing
+      if (token.startsWith('Bearer ')) {
+        token = token.slice(7);
+      }
     }
 
     if (!token) {
