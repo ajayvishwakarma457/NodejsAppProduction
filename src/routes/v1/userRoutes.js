@@ -5,6 +5,13 @@ const validateRequest = require('../../middlewares/v1/validationMiddleware');
 const userValidation = require('../../validations/v1/userValidation');
 const { authenticate, restrictTo } = require('../../middlewares/v1/authMiddleware');
 
+// Public user onboarding Saga endpoint
+router.post(
+  '/saga-register',
+  validateRequest(userValidation.createUser),
+  UserController.registerWithSaga
+);
+
 // Map CRUD routes to UserController with Zod schema validation
 router.use(authenticate);
 

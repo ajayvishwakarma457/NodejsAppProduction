@@ -146,8 +146,8 @@ This document serves as the core context for building our Node.js application, d
 - [x] Service decomposition principles (Domain-Driven Design) (decomposed into api-gateway, user-service, and notification-service)
 - [x] Inter-service communication: REST, gRPC, message queues
 - [x] API Gateway patterns (Kong, AWS API Gateway, Nginx)
-- [ ] Service discovery and load balancing
-- [ ] Saga pattern for distributed transactions
+- [x] Service discovery and load balancing
+- [x] Saga pattern for distributed transactions
 - [ ] Circuit breaker (opossum library)
 
 ### 2. Message Queues & Event Streaming

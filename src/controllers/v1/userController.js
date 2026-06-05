@@ -321,6 +321,26 @@ const UserController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  // POST /api/v1/users/saga-register (Distributed Transaction Saga Onboarding)
+  registerWithSaga: async (req, res, next) => {
+    try {
+      const SagaOrchestrator = require('../../utils/sagaOrchestrator');
+      const result = await SagaOrchestrator.runUserOnboarding(req.body);
+      
+      if (!result.success) {
+        return next(new AppError(`Onboarding Saga failed: ${result.error}`, 400));
+      }
+      
+      res.status(201).json({
+        status: 'success',
+        message: 'Distributed onboarding Saga completed successfully',
+        data: result.user,
+      });
+    } catch (err) {
+      next(err);
+    }
   }
 };
 
