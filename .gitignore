@@ -8,4 +8,7 @@ scratch/
 public/uploads/
 logs/
 test-results/
-playwright-report/
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
