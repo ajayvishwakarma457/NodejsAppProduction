@@ -8,5 +8,6 @@ const router = express.Router();
 router.use(authenticate);
 
 router.post('/trigger-email', JobController.triggerEmail);
+router.get('/failed', JobController.getFailedJobs);
 
 module.exports = router;

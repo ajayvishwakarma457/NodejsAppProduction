@@ -12,11 +12,12 @@ const emailQueue = new Queue('emailQueue', {
  * @param {string} body - Email body content
  * @returns {Promise<Object>} The added BullMQ job
  */
-async function addEmailJob(to, subject, body) {
+async function addEmailJob(to, subject, body, priority = 3) {
   return await emailQueue.add(
     'send-email-job',
     { to, subject, body },
     {
+      priority, // Priority (lower numbers mean higher priority, e.g. 1 = High, 3 = Low)
       attempts: 3, // Retry up to 3 times on failure
       backoff: {
         type: 'exponential',

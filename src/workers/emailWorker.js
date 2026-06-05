@@ -28,8 +28,31 @@ emailWorker.on('completed', (job) => {
   console.log(`[Worker] Job ${job.id} completed successfully`);
 });
 
-emailWorker.on('failed', (job, err) => {
-  console.error(`[Worker] Job ${job.id} failed: ${err.message}`);
+emailWorker.on('failed', async (job, err) => {
+  console.error(`[Worker] Job ${job.id || 'unknown'} failed: ${err.message}`);
+
+  if (job && job.attemptsMade >= job.opts.attempts) {
+    console.warn(`[Worker] Job ${job.id} has exhausted all ${job.opts.attempts} attempts. Preserving to Dead Letter Queue (DLQ) in MongoDB.`);
+    try {
+      const FailedJob = require('../models/failedJobModel');
+      await FailedJob.findOneAndUpdate(
+        { jobId: job.id },
+        {
+          jobId: job.id,
+          queueName: 'emailQueue',
+          name: job.name,
+          data: job.data,
+          failedReason: err.message,
+          attemptsMade: job.attemptsMade,
+          failedAt: new Date(),
+        },
+        { upsert: true, new: true }
+      );
+      console.log(`[Worker] Job ${job.id} successfully written to MongoDB DLQ.`);
+    } catch (dbErr) {
+      console.error(`[Worker] Failed to write job ${job.id} to DLQ:`, dbErr.message);
+    }
+  }
 });
 
 module.exports = emailWorker;
