@@ -32,12 +32,10 @@ To keep production containers lightweight, secure, and performant, all Dockerfil
 - Uses `node:18-alpine` as a base.
 - Installs necessary build tools (`g++`, `make`, `python3`) required for compiling native C/C++ addons.
 - Installs all dependencies (including devDependencies) via `npm ci`.
-- Runs Prisma client generation (`npx prisma generate`).
 
 ### Stage 2: Runner
 - Uses a clean `node:18-alpine` environment.
 - Copies only production-level files (code, assets, scripts) and installs production-only dependencies via `npm ci --omit=dev`.
-- Pulls in the pre-compiled Prisma client artifacts from the Builder stage.
 - Eliminates development tool chains, decreasing container size by over **70%** and reducing the attack surface.
 
 ---

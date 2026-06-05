@@ -6,10 +6,8 @@ WORKDIR /usr/src/app
 RUN apk add --no-cache python3 make g++
 
 COPY package*.json ./
-COPY prisma ./prisma/
 
 RUN npm ci
-RUN npx prisma generate
 
 # --- Stage 2: Production Runner ---
 FROM node:18-alpine AS runner
@@ -20,12 +18,8 @@ ENV NODE_ENV=production
 ENV PORT=6000
 
 COPY package*.json ./
-COPY prisma ./prisma/
 
 RUN npm ci --omit=dev && npm cache clean --force
-
-COPY --from=builder /usr/src/app/node_modules/@prisma/client ./node_modules/@prisma/client
-COPY --from=builder /usr/src/app/node_modules/.prisma ./node_modules/.prisma
 
 # Copy source utilities, configuration, and microservices directory
 COPY src ./src
