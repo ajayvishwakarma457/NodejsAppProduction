@@ -10,7 +10,11 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "start:gateway": "node microservices/api-gateway/index.js",
+    "start:user": "node microservices/user-service/index.js",
+    "start:notif": "node microservices/notification-service/index.js",
+    "start:microservices": "concurrently -n gateway,user,notif \"npm run start:gateway\" \"npm run start:user\" \"npm run start:notif\""
   },
   "engines": {
     "node": ">=18.0.0"
@@ -24,10 +28,12 @@
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.78.0",
     "busboy": "^1.6.0",
+    "concurrently": "^9.2.1",
     "connect-redis": "^6.1.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-http-proxy": "^2.1.2",
     "express-rate-limit": "^8.5.2",
     "express-session": "^1.19.0",
     "express-validator": "^7.3.2",

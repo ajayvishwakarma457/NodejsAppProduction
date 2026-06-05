@@ -143,7 +143,7 @@ This document serves as the core context for building our Node.js application, d
 **Goal:** Design scalable distributed systems, lead architecture decisions, handle production at scale.
 
 ### 1. Microservices Architecture
-- Service decomposition principles (Domain-Driven Design)
+- [x] Service decomposition principles (Domain-Driven Design) (decomposed into api-gateway, user-service, and notification-service)
 - Inter-service communication: REST, gRPC, message queues
 - API Gateway patterns (Kong, AWS API Gateway, Nginx)
 - Service discovery and load balancing
