@@ -1,6 +1,6 @@
-# Zero-Downtime Deployments: Blue-Green & Canary Releases
+# Zero-Downtime Deployments & Advanced Routing Strategies
 
-This document describes how to deploy the Node.js production application with **zero downtime** using Kubernetes-native mechanisms: **Blue-Green deployments** and **Canary releases**.
+This document describes how to deploy the Node.js production application using six distinct release and routing strategies in Kubernetes.
 
 ---
 
@@ -24,23 +24,6 @@ graph TD
 - Active Service: [active-service.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/blue-green/active-service.yaml)
 - Preview Service: [preview-service.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/blue-green/preview-service.yaml)
 
-### Deployment Steps
-1. Deploy the new code version to the **idle** color (e.g., Green):
-   ```bash
-   kubectl apply -f kubernetes/strategies/blue-green/green-deployment.yaml
-   ```
-2. Verify the idle version using the **Preview Service**:
-   ```bash
-   curl http://nodejs-monolith-preview:5000/health
-   ```
-3. Swap active target using the automated promotion script:
-   ```bash
-   ./kubernetes/strategies/blue-green/promote.sh
-   ```
-
-### Promotion/Rollback Script
-The automated promotion script [promote.sh](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/blue-green/promote.sh) dynamically switches the active target by patching the selector. If verification fails, it can swap them back immediately.
-
 ---
 
 ## 2. Canary Releases Strategy
@@ -60,15 +43,53 @@ graph TD
 - Services: [services.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/canary/services.yaml)
 - Ingress Config: [ingress-canary.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/canary/ingress-canary.yaml)
 
-### Progressive Traffic Routing Steps
-We use NGINX Ingress controller annotations (`nginx.ingress.kubernetes.io/canary`) to split traffic based on weight.
+---
 
-1. Deploy stable and canary environments.
-2. Initialize Canary traffic at 10% weight using the Ingress.
-3. Automatically adjust weights progressively (e.g., 10% -> 25% -> 50% -> 75% -> 100%) using the rollout script:
-   ```bash
-   ./kubernetes/strategies/canary/rollout-canary.sh
-   ```
+## 3. Recreate Strategy
 
-### Fallbacks & Rollbacks
-If metrics or error-alert logs show anomalies (for example, `/health` reports failures or synthetic metrics drop), the script automatically resets the canary weight annotation to `0` and halts rollout, protecting live production users.
+The Recreate strategy is a non-rolling update pattern that terminates all existing pods in the Deployment before starting any new ones. While it incurs brief downtime, it guarantees that two versions of the codebase never run concurrently (ideal for breaking database schema migrations).
+
+### Manifests Location
+- Recreate Deployment: [recreate-deployment.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/recreate/recreate-deployment.yaml)
+
+---
+
+## 4. Ingress-Based A/B Testing Strategy
+
+This strategy splits traffic based on client attributes (cookies, session parameters) rather than just random percentages, ensuring users get a consistent UX sticky variant.
+
+### Manifests Location
+- Ingress Config: [ingress-ab-test.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/ab-testing/ingress-ab-test.yaml)
+
+We use NGINX Ingress annotations like `nginx.ingress.kubernetes.io/canary-by-cookie` targeting cookie names (e.g., `user_tier`). If a client request carries the cookie set to `always`, they are routed to the canary variant B.
+
+---
+
+## 5. Traffic Shadowing (Shadow) Strategy
+
+Shadowing (or mirroring) duplicates production traffic and forwards it to a new release version asynchronously. The responses from the shadowed service are discarded, allowing performance testing under real load without affecting end users.
+
+```mermaid
+graph TD
+    User([User Traffic]) --> Ingress{NGINX Ingress}
+    Ingress -->|Production Response| Stable[Stable Service]
+    Ingress -.->|Asynchronous Copy - Response Discarded| Shadow[Shadow Service]
+```
+
+### Manifests Location
+- Shadow Deployment: [shadow-deployment.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/shadow/shadow-deployment.yaml)
+- Shadow Service: [shadow-service.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/shadow/shadow-service.yaml)
+- Ingress Config: [ingress-mirror.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/shadow/ingress-mirror.yaml)
+
+---
+
+## 6. Quick Pick Strategy (Selective Routing)
+
+Quick Pick (or Dark Launching) routes traffic to the new version selectively based on custom HTTP request headers. This allows internal testers, VIPs, or specific regions to evaluate the release first.
+
+### Manifests Location
+- Ingress Config: [ingress-quick-pick.yaml](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/kubernetes/strategies/quick-pick/ingress-quick-pick.yaml)
+
+Using annotations:
+- `nginx.ingress.kubernetes.io/canary-by-header: "X-Beta-Tester"`
+- `nginx.ingress.kubernetes.io/canary-by-header-value: "allow"`

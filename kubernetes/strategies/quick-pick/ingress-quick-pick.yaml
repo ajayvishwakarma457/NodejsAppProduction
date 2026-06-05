@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nodejs-monolith-quick-pick-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-header: "X-Beta-Tester" # Matches requests carrying this header
+    nginx.ingress.kubernetes.io/canary-by-header-value: "allow"   # Triggers routing when value matches 'allow'
+spec:
+  rules:
+    - host: app.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nodejs-monolith-canary-service
+                port:
+                  number: 5000

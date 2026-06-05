@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-monolith-recreate
+  namespace: default
+  labels:
+    app: nodejs-monolith
+    strategy: recreate
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate # Terminates all running instances before starting new ones
+  selector:
+    matchLabels:
+      app: nodejs-monolith
+      strategy: recreate
+  template:
+    metadata:
+      labels:
+        app: nodejs-monolith
+        strategy: recreate
+    spec:
+      containers:
+        - name: monolith
+          image: nodejs-monolith-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          envFrom:
+            - configMapRef:
+                name: nodejs-app-config
+            - secretRef:
+                name: nodejs-app-secrets
+          env:
+            - name: PORT
+              value: "5000"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
