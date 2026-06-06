@@ -1,0 +1,72 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nodejs-monolith-hpa
+  namespace: default
+  labels:
+    app: nodejs-monolith
+    component: autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nodejs-monolith
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    # ── CPU-based scaling ──────────────────────────────────────────────────────
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75   # Scale up when avg CPU > 75%
+    # ── Memory-based scaling ───────────────────────────────────────────────────
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80   # Scale up when avg Memory > 80%
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30        # Wait 30s before scaling up again
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60                 # Add at most 2 pods per minute
+        - type: Percent
+          value: 50
+          periodSeconds: 60                 # Or scale by 50%, whichever is larger
+    scaleDown:
+      stabilizationWindowSeconds: 300       # Wait 5 min before scaling down
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120                # Remove at most 1 pod every 2 minutes
+---
+# VPA for container right-sizing recommendations (non-destructive — Off mode)
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: nodejs-monolith-vpa
+  namespace: default
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nodejs-monolith
+  updatePolicy:
+    updateMode: "Off"           # Recommendation only — does NOT restart pods
+  resourcePolicy:
+    containerPolicies:
+      - containerName: nodejs-monolith
+        minAllowed:
+          cpu: 100m
+          memory: 256Mi
+        maxAllowed:
+          cpu: 2000m
+          memory: 2048Mi
+        controlledResources: ["cpu", "memory"]
