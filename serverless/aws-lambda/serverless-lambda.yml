@@ -1,0 +1,49 @@
+# serverless/aws-lambda/serverless-lambda.yml
+service: nodejs-production-lambda
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  memorySize: 1024 # Larger memory size grants more CPU share, speeding up cold start execution
+  timeout: 29 # Maximum integration timeout for API Gateway is 29s
+  environment:
+    MONGO_URI: ${env:MONGO_URI, 'mongodb://localhost:27017/prod_db'}
+    NODE_ENV: production
+
+# Packaging configurations: Exclude node_modules to utilize the Lambda Layer
+package:
+  individually: true
+  patterns:
+    - '!node_modules/**'
+    - '!layers/**'
+    - '!tests/**'
+    - 'handler.js'
+
+layers:
+  nodeDependencies:
+    path: layers # Points to the local layers directory containing layers/nodejs/package.json
+    name: ${self:service}-${self:provider.stage}-dependencies
+    description: Common npm dependencies for the Node.js production microservices
+    compatibleRuntimes:
+      - nodejs18.x
+    retain: false
+
+functions:
+  api:
+    handler: handler.apiHandler
+    layers:
+      - !Ref NodeDependenciesLambdaLayer
+    events:
+      - http:
+          path: /
+          method: any
+      - http:
+          path: /{proxy+}
+          method: any
+    # Warm start configuration to mitigate cold starts
+    # Note: SnapStart is currently supported on Java 11/17/21 runtimes only.
+    # For Node.js, we leverage Provisioned Concurrency or CloudWatch warming rules:
+    provisionedConcurrency: 2 # Keeps 2 execution environments active and initialized
+    concurrencyAutoscaling: true # Auto scales based on demand

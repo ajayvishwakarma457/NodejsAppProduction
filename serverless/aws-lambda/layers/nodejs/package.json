@@ -1,0 +1,9 @@
+{
+  "name": "lambda-layer-dependencies",
+  "version": "1.0.0",
+  "description": "Dependencies for AWS Lambda shared Layer to optimize deployment package size",
+  "dependencies": {
+    "mongoose": "^8.0.0",
+    "lodash": "^4.17.21"
+  }
+}
