@@ -1,14 +1,1 @@
 node_modules
-# Keep environment variables out of version control
-.env
-
-/src/generated/prisma
-coverage/
-scratch/
-public/uploads/
-logs/
-test-results/
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.backup
