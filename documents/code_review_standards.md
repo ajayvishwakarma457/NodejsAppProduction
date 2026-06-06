@@ -50,3 +50,16 @@ Reviewers should evaluate pull requests against these technical criteria:
 3. **Telemetry & Observability**: Are critical business events logged with correct logging levels and correlation IDs?
 4. **Performance & Memory**: Are stream pipes properly closed? Are event listeners detached to prevent memory leaks?
 5. **Test Coverage**: Are success, error, and boundary/edge conditions covered by unit tests?
+
+---
+
+## 5. Programmatic Enforcement (Pre-commit Git Hooks)
+
+To ensure high-quality standards before reviews start, the project uses git hooks to lint staged changes automatically:
+- **Lint Check Execution**: Running `npm run lint` evaluates all source code files using the rules in [eslint.config.js](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/eslint.config.js).
+- **Git Hook Tunnel**: On every `git commit` attempt, **Husky** invokes [pre-commit](file:///Users/spakcomm-ajay/Documents/Roadmap/NodejsAppProduction/.husky/pre-commit) which triggers **lint-staged**.
+- **Auto-fixing Styles**: Files currently in the staging area are formatted and linted automatically before the commit proceeds, preventing standard violations from ever reaching the pull request phase.
+- **Emergency Bypass**: In emergency cases (e.g. documentation edits or urgent hotfixes where style checks are irrelevant), you can bypass hooks by appending the `--no-verify` flag to your commit command:
+  ```bash
+  git commit -m "docs: urgent update" --no-verify
+  ```
