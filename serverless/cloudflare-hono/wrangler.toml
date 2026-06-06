@@ -1,0 +1,8 @@
+# serverless/cloudflare-hono/wrangler.toml
+name = "nodejs-production-hono-worker"
+main = "src/index.js"
+compatibility_date = "2023-10-30"
+
+[vars]
+ENVIRONMENT = "production"
+API_VERSION = "v1"
