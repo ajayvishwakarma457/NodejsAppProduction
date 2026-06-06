@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/edge/greet",
+      "dest": "/api/edge-handler.js"
+    }
+  ]
+}
